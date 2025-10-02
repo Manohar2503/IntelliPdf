@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+google-generativeai
+google-cloud-texttospeech
+python-dotenv
+protobuf
+sarvamai

@@ -1,117 +1,94 @@
+#  IntelliPDF – AI-Powered PDF Assistant
+
+##  Overview
+Reading large PDFs (200+ pages) is time-consuming for students, researchers, professionals, and collectors. **IntelliPDF** is an AI-powered solution that helps users save valuable time by providing **summarized content, query-based responses, recommendations, and audio podcasts** for any PDF.
+
+Built with **Google Gemini Pro**, IntelliPDF transforms how users interact with documents.
 
 ---
 
-# Adobe Hackathon 2025 – Finale Solution
-
-## Project Overview
-
-This project is an **interactive, intelligent PDF reading application** built for the **Adobe India Hackathon 2025 (Finale)**.
-
-It extends the **PDF understanding engine** and **persona-driven document intelligence system** built in earlier rounds, and brings them into a **real user experience**.
-
-### Key Features
-
-* **Adobe PDF Embed API** – renders PDFs with 100% fidelity (zoom/pan supported).
-* **Bulk & Fresh Uploads** – users can upload past PDFs and open new ones.
-* **Context-Aware Recommendations** – highlights at least 3 relevant sections across PDFs (>80% accuracy).
-* **Snippets** – short 1–2 sentence explanations of relevance.
-* **Insights Bulb** – provides insights, counterpoints, and connections across documents.
-* **Podcast Mode** – generates narrated audio overview using TTS.
+##  Features
+-  **Summarization** – Get concise summaries of large PDFs instantly.  
+-  **AI Chatbot** – Ask any query about the PDF and get precise answers powered by Gemini.  
+-  **Smart Recommendations** – Receive suggestions with direct links to relevant PDF pages.  
+-  **Insights Generation** – Extract the most important insights related to your query.  
+-  **Podcast Mode** – If reading feels boring, listen to AI-generated audio podcasts of responses.  
 
 ---
 
-## Project Structure
-
-```
-Finale-solution/
-│── frontend/        # React + TypeScript frontend
-│── backend/         # Python backend with LLM & TTS
-│── credentials/     # Credentials for Gemini & TTS
-│── dockerfile       # Build instructions
-│── README.md        # Documentation
-```
+##  Tech Stack
+- **AI Model:** Google Gemini Pro  
+- **Frontend:** React (Vite), TailwindCSS  
+- **Backend:** FastAPI (Python)  
+- **Database:** MongoDB  
+- **Extras:** Text-to-Speech for podcast feature  
 
 ---
 
-## Frontend
-
-Located in the `frontend/` folder. Built using:
-
-* React (TypeScript)
-* Adobe PDF Embed API (for high-fidelity PDF rendering)
-* Tailwind CSS (responsive UI)
-
-### Important Note for Recommendations
-
-The recommendation logic is handled in:
-
-```
-frontend/src/components/recommendations.tsx
-frontend/src/components/InsightsModal.tsx
-```
-
-If recommendations or insights do not appear automatically:
-
-1. Copy the selected text.
-2. Paste it into the `selected_text` field inside the `fetchRecommendations()` and `useQuery()` function.
-
-This ensures smooth manual testing during development.
-
----
-
-## Backend
-
-Located in the `backend/` folder. Built using:
-
-* Python
-* Gemini 2.5 Flash – for LLM calls (recommendations and insights).
-* Gemini TTS – for generating audio in Podcast Mode.
-
-### Models Used
-
-* LLM: `gemini-2.5-flash`
-* TTS: Gemini TTS (via environment variables).
-
----
-
-## Running with Docker
-
-### 1. Build the image
-
+##  Project Structure
 ```bash
-docker build --no-cache -t <image-name> .
+frontend/
+  ├── src/components/
+  │   ├── ChatbotSidebar.tsx      # Chatbot with query + recommendations
+  │   ├── Recommendations.tsx     # Displays AI recommendations
+  │   └── InsightsModal.tsx       # Shows insights in detail
+backend/
+  ├── api/
+  │   └── routes/insights.py      # Insights & recommendation API
+  ├── app.py                      # FastAPI main entry point
+  └── requirements.txt            # Backend dependencies
 ```
+## How It Works
 
-### 2. Run the container
+User uploads a large PDF (200+ pages).
 
+IntelliPDF automatically generates a summary.
+
+User interacts with the chatbot to ask queries.
+
+Backend calls Gemini Pro to provide:
+
+Direct answer to the query
+
+Smart recommendations with page links
+
+Insights with key highlights
+
+Podcast-style audio narration
+
+User quickly accesses exactly what they need without reading the full document.
+
+🖥️ Running Locally
+1️⃣ Clone the Repository
 ```bash
-docker run --rm -p 8080:8080 \
-   -e GOOGLE_APPLICATION_CREDENTIALS=/credentials/tts_account.json \
-   -e GEMINI_MODEL=gemini-2.5-flash \
-   -e ADOBE_EMBED_API_KEY=<user-id> \
-   -v "path/credentials:/credentials" \
-   -v "path/backend/input:/app/input" \
-   -v "path/backend/newpdf:/app/newpdf" \
-   -v "path/backend/output:/app/output" \
-   <image-name>
+git clone https://github.com/yourusername/IntelliPDF.git
+cd IntelliPDF
+```
+2️⃣ Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
----
+3️⃣ Backend Setup
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate   # (Windows)
+source venv/bin/activate  # (Mac/Linux)
 
-## Accessing the App
+pip install -r requirements.txt
 
-Once the container is running, open:
-[http://localhost:8080](http://localhost:8080)
+# Run the server
+uvicorn app:app --reload --host 0.0.0.0 --port 8080
+```
+## Example Use Case
 
----
+A student uploads a 200-page pdf.
 
-## Deliverables Recap
+IntelliPDF instantly provides a summary.
 
-* Working prototype (browser-accessible).
-* Frontend and Backend integrated.
-* Insights and Recommendations powered by Gemini.
-* TTS (Podcast Mode) enabled.
+The student asks, "What are the main results in chapter 5?".
 
----
-
-
+AI returns the answer, provides recommendations with page links, generates key insights, and also delivers a podcast-style audio explanation.

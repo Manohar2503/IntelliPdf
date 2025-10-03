@@ -6,6 +6,10 @@ import os
 import json
 import numpy as np
 import google.generativeai as genai
+from src.summarizer import DocumentSummarizer
+
+# Initialize summarizer
+doc_summarizer = DocumentSummarizer()
 
 # IMPORTANT: make sure GEMINI_API_KEY is set in env or .env (genai.configure will still work)
 api_key = os.getenv("GEMINI_API_KEY")
@@ -22,6 +26,47 @@ except Exception:
 class ChatbotResponse(BaseModel):
     response: str
     sources: List[Dict] = []
+    is_summary: bool = False
+
+def get_initial_summary() -> ChatbotResponse:
+    """
+    Generate initial summary when a new document is loaded
+    """
+    print("Debug - Starting summary generation")
+    docs = _load_current_docs()
+    print(f"Debug - Loaded {len(docs)} documents")
+    if not docs:
+        return ChatbotResponse(
+            response="No documents loaded yet.",
+            is_summary=True
+        )
+
+    try:
+        # Get all sections from all documents
+        all_sections = []
+        for doc in docs:
+            sections = doc.get('sections', [])
+            print(f"Debug - Document '{doc.get('name', 'unnamed')}' has {len(sections)} sections")
+            all_sections.extend(sections)
+        print(f"Debug - Total sections to summarize: {len(all_sections)}")
+
+        # Generate summary
+        summary_data = doc_summarizer.summarize_document(all_sections)
+        initial_message = doc_summarizer.generate_initial_message(summary_data)
+        print("\n=== Final Summary Message ===")
+        print(initial_message)
+        print("\n=============================\n")
+
+        return ChatbotResponse(
+            response=initial_message,
+            is_summary=True
+        )
+    except Exception as e:
+        print(f"Error generating summary: {str(e)}")
+        return ChatbotResponse(
+            response="I've loaded the document but couldn't generate a summary. Feel free to ask specific questions!",
+            is_summary=True
+        )
 
 # -------------------------
 # Helpers
@@ -201,13 +246,28 @@ def get_chatbot_response(query: str, top_k: int = 3) -> ChatbotResponse:
     - calls Gemini with the chosen context
     - returns ChatbotResponse(response, sources)
     """
-    print(f"Debug - Processing query: {query}")
+    print("\n=== Processing Chatbot Query ===")
+    print(f"Query: {query}")
+    
+    # Load and verify documents
+    docs = _load_current_docs()
+    print(f"Found {len(docs)} documents in current_doc.json")
+    for doc in docs:
+        print(f"Document: {doc.get('name', 'unnamed')} - {len(doc.get('sections', []))} sections")
+    
     sections = find_relevant_sections(query, top_k=top_k)
     print(f"Debug - Found {len(sections)} relevant sections")
     if not sections:
         return ChatbotResponse(response="I couldn't find any relevant information in the document.", sources=[])
 
+    print(f"\nFound {len(sections)} relevant sections:")
+    for section in sections:
+        print(f"- {section.get('title')} | {section.get('section_heading')} | Score: {section.get('score')}")
+    
     context = build_context_from_sections(sections)
+    print(f"\nBuilt context with {len(context)} characters")
+    
+    print("\nGenerating answer with Gemini...")
     answer, error_message = generate_answer_with_gemini(query, context)
     if answer is None:
         # Gemini failed — return an informative message with sources for debugging

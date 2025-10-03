@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from dotenv import load_dotenv # Import load_dotenv
-
+from src.search_v2 import search_documents, SearchRequest
 # Load environment variables from .env file
 load_dotenv()
 
@@ -29,7 +29,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 # Routers
 from src.insights import router as insights_router
 from src.podcast import router as podcast_router
-from src.chatbot import get_chatbot_response, ChatbotResponse # Import chatbot functions
+from src.chatbot import get_chatbot_response, get_initial_summary, ChatbotResponse # Import chatbot functions
 
 # Embedding
 from src.ranker import EmbeddingGenerator
@@ -48,12 +48,10 @@ app = FastAPI(title="PDF Insight Nexus")
 # ----------------------------
 # Required directories
 # ----------------------------
-os.makedirs("input", exist_ok=True)
 os.makedirs("newpdf", exist_ok=True)
 os.makedirs("output", exist_ok=True)
 os.makedirs("static/audio", exist_ok=True)
 
-INPUT_DIR = Path("input")
 NEWPDF_DIR = Path("newpdf")
 OUTPUT_DIR = Path("output")
 
@@ -81,10 +79,12 @@ CURRENT_JSON_PATH = OUTPUT_DIR / "current_doc.json"
 
 def load_json(path: Path):
     if path.exists():
+        print(f"Debug - Loading JSON from {path}")
         with open(path, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
                 docs = data.get("documents", [])
+                print(f"Debug - Found {len(docs)} documents in {path}")
                 for doc in docs:
                     if "sections" not in doc:
                         doc["sections"] = []
@@ -204,41 +204,37 @@ async def chatbot_endpoint(query_data: ChatbotQuery):
     response = get_chatbot_response(query_data.query)
     return response
 
+@app.get("/summary", response_model=ChatbotResponse)
+async def get_summary():
+    """
+    Get initial summary of the uploaded document(s)
+    """
+    try:
+        print("Debug - Generating document summary")
+        summary = get_initial_summary()
+        return summary
+    except Exception as e:
+        print(f"Error generating summary: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/upload/bulk")
-async def upload_bulk(files: list[UploadFile] = File(...)):
-    INPUT_DIR.mkdir(exist_ok=True, parents=True)
-    saved_files = []
 
-    for file in files:
-        file_path = INPUT_DIR / file.filename
-        with open(file_path, "wb") as f:
-            shutil.copyfileobj(file.file, f)
 
-        unique_id = hashlib.md5(f"{file.filename}{time.time()}".encode()).hexdigest()
-        size_bytes = os.path.getsize(file_path)
-
-        try:
-            with fitz.open(file_path) as doc:
-                num_pages = doc.page_count
-        except Exception:
-            num_pages = 0
-
-        saved_files.append({
-            "id": unique_id,
-            "name": file.filename,
-            "url": f"http://localhost:8080/input/{file.filename}",  # ✅ fixed
-            "sizeBytes": size_bytes,
-            "pages": num_pages,
-            "status": "ready"
-        })
-
-    return {"message": "Bulk PDFs uploaded", "files": saved_files}
 
 
 @app.post("/upload/new")
 async def upload_new(file: UploadFile = File(...)):
+    """Handle single PDF upload for analysis"""
+    # Clear newpdf directory first
+    if NEWPDF_DIR.exists():
+        for f in NEWPDF_DIR.iterdir():
+            if f.is_file():
+                f.unlink()
+    
     NEWPDF_DIR.mkdir(exist_ok=True, parents=True)
+    
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+    
     file_path = NEWPDF_DIR / file.filename
     with open(file_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
@@ -252,8 +248,13 @@ async def upload_new(file: UploadFile = File(...)):
     except Exception:
         num_pages = 0
 
+    # Clear current_doc.json
+    current_doc_path = OUTPUT_DIR / "current_doc.json"
+    if current_doc_path.exists():
+        current_doc_path.unlink()
+
     return {
-        "message": "New PDF uploaded",
+        "message": "PDF uploaded for analysis",
         "file": {
             "id": unique_id,
             "name": file.filename,
@@ -270,8 +271,10 @@ async def upload_new(file: UploadFile = File(...)):
 @app.post("/process")
 async def process_pdfs_endpoint():
     try:
+        print("Debug - Starting PDF processing")
         OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
         process_all_pdfs()
+        print("Debug - PDF processing completed")
         global past_docs, current_docs
         past_docs = load_json(PAST_JSON_PATH)
         current_docs = load_json(CURRENT_JSON_PATH)
@@ -289,14 +292,10 @@ async def process_pdfs_endpoint():
 
 @app.delete("/delete/{filename}")
 async def delete_pdf(filename: str):
-    file_path_input = INPUT_DIR / filename
-    file_path_new = NEWPDF_DIR / filename
-    if file_path_input.exists():
-        file_path_input.unlink()
-        return {"message": f"{filename} deleted from input folder."}
-    elif file_path_new.exists():
-        file_path_new.unlink()
-        return {"message": f"{filename} deleted from newpdf folder."}
+    file_path = NEWPDF_DIR / filename
+    if file_path.exists():
+        file_path.unlink()
+        return {"message": f"{filename} deleted."}
     else:
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -323,8 +322,6 @@ async def cleanup_folders():
 # ----------------------------
 app.include_router(insights_router)
 app.include_router(podcast_router)
-app.mount("/uploads", StaticFiles(directory=INPUT_DIR), name="uploads")
 app.mount("/newpdf", StaticFiles(directory=NEWPDF_DIR), name="newpdf")
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 # app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

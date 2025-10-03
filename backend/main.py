@@ -21,7 +21,6 @@ from fastapi.middleware.cors import CORSMiddleware # Import CORS middleware
 load_dotenv() # Load environment variables from .env file
 
 BASE_DIR = Path(__file__).resolve().parent
-INPUT_DIR = Path("input")
 NEWPDF_DIR = Path("newpdf")
 OUTPUT_DIR = Path("output")
 
@@ -47,9 +46,32 @@ def extract_snippets(section_text, max_snippets=3):
 # Process PDFs and generate JSON
 # --------------------------
 def process_pdfs(pdf_paths, output_file):
+    print(f"\n=== Processing PDFs for {output_file} ===")
     pdf_extractor = PDFExtractor()
     embed_gen = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
+    
+    output_path = OUTPUT_DIR / output_file
     all_docs_data = []
+
+    # For SetForAnalysis (current_doc.json), we only keep the most recent PDF
+    if output_file == "current_doc.json":
+        # Take only the most recent PDF if multiple files are provided
+        if pdf_paths:
+            pdf_paths = [max(pdf_paths, key=lambda p: p.stat().st_mtime)]
+        print(f"Processing single PDF for analysis: {pdf_paths[0].name if pdf_paths else 'none'}")
+    else:
+        # For output.json, load existing documents
+        if output_path.exists():
+            with open(output_path, 'r', encoding='utf-8') as f:
+                try:
+                    existing_data = json.load(f)
+                    if isinstance(existing_data, dict) and 'documents' in existing_data:
+                        all_docs_data = existing_data['documents']
+                    elif isinstance(existing_data, list):
+                        all_docs_data = existing_data
+                except json.JSONDecodeError:
+                    pass
+        print(f"Starting with {len(all_docs_data)} existing documents")
 
     for pdf_path in pdf_paths:
         filename = pdf_path.name
@@ -99,6 +121,12 @@ def process_pdfs(pdf_paths, output_file):
 
         all_docs_data.append(doc_data)
 
+    # Save the processed documents
+    output_path = OUTPUT_DIR / output_file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump({"documents": all_docs_data}, f, indent=2)
+    print(f"Saved {len(all_docs_data)} documents to {output_file}")
+
     # Save output JSON
     OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
     
@@ -119,22 +147,14 @@ def process_pdfs(pdf_paths, output_file):
 # --------------------------
 def main():
     # NEWPDF_DIR = Path("newpdf")
-    # INPUT_DIR = Path("input")
     NEWPDF_DIR.mkdir(exist_ok=True, parents=True)
-    INPUT_DIR.mkdir(exist_ok=True, parents=True)
 
     pdf_files_new = [f for f in NEWPDF_DIR.iterdir() if f.suffix.lower() == ".pdf"]
-    pdf_files_input = [f for f in INPUT_DIR.iterdir() if f.suffix.lower() == ".pdf"]
 
     if pdf_files_new:
         process_pdfs(pdf_files_new, "current_doc.json")
     else:
         print("[INFO] No PDFs found in 'newpdf/'")
-
-    if pdf_files_input:
-        process_pdfs(pdf_files_input, "output.json")
-    else:
-        print("[INFO] No PDFs found in 'input/'")
 
 
 app = FastAPI()
@@ -175,13 +195,13 @@ class ChatbotRequest(BaseModel):
 
 @app.post("/chatbot", response_model=ChatbotResponse)
 async def chatbot_endpoint(request: ChatbotRequest):
-    document_content = load_current_document_content()
-    if not document_content:
-        raise HTTPException(status_code=404, detail="No active document content found.")
+    """Handle chatbot queries using the processed documents"""
+    print(f"\\n=== Chatbot Query: {request.query} ===")
     try:
-        response = get_chatbot_response(request.query, document_content)
+        response = get_chatbot_response(request.query)
         return response
     except Exception as e:
+        print(f"Error processing chatbot query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/chatbot/summary")
@@ -205,23 +225,21 @@ if __name__ == "__main__":
 # --------------------------
 def process_all_pdfs():
     """
-    Process PDFs in 'newpdf/' and 'input/' and generate JSON outputs.
-    Can be called from FastAPI without subprocess.
+    Process PDF in 'newpdf/' directory.
+    Only handles the current PDF for analysis.
     """
-    NEWPDF_DIR = Path("newpdf")
-    INPUT_DIR = Path("input")
-    # NEWPDF_DIR.mkdir(exist_ok=True, parents=True)
-    # INPUT_DIR.mkdir(exist_ok=True, parents=True)
+    OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
 
-    pdf_files_new = [f for f in NEWPDF_DIR.iterdir() if f.suffix.lower() == ".pdf"]
-    pdf_files_input = [f for f in INPUT_DIR.iterdir() if f.suffix.lower() == ".pdf"]
+    # Process PDF in newpdf directory
+    pdf_files = [f for f in NEWPDF_DIR.iterdir() if f.suffix.lower() == ".pdf"]
+    if pdf_files:
+        # Clear the current_doc.json first
+        current_doc_path = OUTPUT_DIR / "current_doc.json"
+        if current_doc_path.exists():
+            current_doc_path.unlink()
 
-    if pdf_files_new:
-        process_pdfs(pdf_files_new, "current_doc.json")
+        print("\nProcessing PDF for analysis...")
+        process_pdfs(pdf_files, "current_doc.json")
+        print("PDF processing complete")
     else:
-        print("[INFO] No PDFs found in 'newpdf/'")
-
-    if pdf_files_input:
-        process_pdfs(pdf_files_input, "output.json")
-    else:
-        print("[INFO] No PDFs found in 'input/'")
+        print("[INFO] No PDF found in 'newpdf/' directory")

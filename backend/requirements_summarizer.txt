@@ -1,0 +1,6 @@
+# Add required dependencies to your requirements.txt
+transformers==4.35.0
+nltk==3.8.1
+torch==2.1.0
+sentencepiece==0.1.99
+protobuf==4.24.4

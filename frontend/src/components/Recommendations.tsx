@@ -137,8 +137,8 @@ const handleJumpToPage = async (rec: Recommendation, page: number) => {
             <p className="text-sm">No recommendations available for this selection</p>
           </div>
         ) : (
-          recommendations.map((rec) => (
-            <Card key={rec.doc_id} className="hover:shadow-md transition-shadow">
+          recommendations.map((rec, index) => (
+            <Card key={`${rec.doc_id}-${index}`} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-sm font-medium leading-tight">

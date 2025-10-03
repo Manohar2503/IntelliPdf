@@ -35,41 +35,49 @@ export function SetForAnalysis() {
   const pdfFiles = Array.from(files).filter(file => file.type === 'application/pdf');
 
   if (pdfFiles.length === 0) {
-    toast({ title: "No PDF files selected", description: "Please select PDF files for analysis.", variant: "destructive" });
+    toast({ title: "No PDF files selected", description: "Please select a PDF file for analysis.", variant: "destructive" });
     return;
   }
 
+  // Take only the first PDF file
+  const file = pdfFiles[0];
+
   try {
-    for (const file of pdfFiles) {
-      const formData = new FormData();
-      formData.append("file", file);
+    // Clear existing files first
+    clearSelectedAnalysisFiles();
 
-      const res = await fetch("http://localhost:8080/upload/new", {
-        method: "POST",
-        body: formData
-      });
+    const formData = new FormData();
+    formData.append("file", file);
 
-      if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
+    const res = await fetch("http://localhost:8080/upload/new", {
+      method: "POST",
+      body: formData
+    });
 
-      const data = await res.json();
+    if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
 
-      const doc: PdfDoc = {
-        id: `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: file.name,
-        sizeBytes: file.size,
-        pages: 0,
-        sections: [],
-        dateISO: new Date().toISOString(),
-        blob: null,
-        status: 'ready',
-        url: data.file.url
-      };
+    const data = await res.json();
 
-      addDocument(doc);
-      addSelectedAnalysisFile(doc); // ✅ add to store
-    }
+    const doc: PdfDoc = {
+      id: `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: file.name,
+      sizeBytes: file.size,
+      pages: 0,
+      sections: [],
+      dateISO: new Date().toISOString(),
+      blob: null,
+      status: 'ready',
+      url: data.file.url
+    };
 
-    toast({ title: "Files added", description: `${pdfFiles.length} PDF files added for analysis.` });
+    addDocument(doc);
+    addSelectedAnalysisFile(doc);
+
+    // Process the PDF immediately
+    const processRes = await fetch("http://localhost:8080/process", { method: "POST" });
+    if (!processRes.ok) throw new Error("Failed to process PDF");
+
+    toast({ title: "File added", description: `${file.name} added for analysis.` });
   } catch (err: any) {
     toast({ title: "Upload error", description: err.message, variant: "destructive" });
   }

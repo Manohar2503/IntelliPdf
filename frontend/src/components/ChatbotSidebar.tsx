@@ -14,9 +14,35 @@ export function ChatbotSidebar() {
   const currentDocument = activeDocId ? documents.find(doc => doc.id === activeDocId) : null;
 
   useEffect(() => {
-    // Initialize with a welcome message, as there's no initial summary endpoint
-    setMessages([{ sender: 'bot', text: 'Hello! How can I help you with this document?' }]);
-  }, []);
+    // Get initial summary when a document is loaded
+    const fetchInitialSummary = async () => {
+      if (currentDocument) {
+        setIsLoading(true);
+        try {
+          const response = await fetch("http://localhost:8080/summary", {
+            method: "GET"
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          setMessages([{ sender: 'bot', text: data.response }]);
+        } catch (error) {
+          console.error('Error fetching summary:', error);
+          setMessages([{ 
+            sender: 'bot', 
+            text: 'Hello! The document is loaded. How can I help you with it?' 
+          }]);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchInitialSummary();
+  }, [currentDocument]);
 
   const handleSendMessage = async () => {
     if (input.trim() && !isLoading) {

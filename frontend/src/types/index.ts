@@ -1,15 +1,13 @@
 export interface PdfDoc {
   id: string;
   name: string;
-  filePath: string;
   sizeBytes: number;
-  uploadedAt: string;
-  title?: string;
-  pages?: number; // Add pages property
+  pages?: number;
   sections: any[];
-  content?: string; // Add content property
-  summary?: string;
-  url?: string; // Add url property for direct access
+  dateISO: string;
+  blob?: Blob | null;
+  status?: string;
+  url: string;
 }
 export interface DocumentSelection {
   text: string;

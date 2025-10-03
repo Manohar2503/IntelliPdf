@@ -1,12 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from 'react';
+import { SetForAnalysis } from '@/components/SetForAnalysis';
+import { DocumentLibrary } from '@/components/DocumentLibrary';
+import { SummaryDisplay } from '@/components/SummaryDisplay';
+import { LeftSidebar } from '@/components/LeftSidebar'; // Assuming LeftSidebar exists and is used for layout
 
 const Index = () => {
+  const [summaryData, setSummaryData] = useState<any>(null);
+
+  const handleSummarizeSuccess = (summary: any) => {
+    setSummaryData(summary);
+  };
+
+  const handleClearSummary = () => {
+    setSummaryData(null);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="flex min-h-screen bg-background">
+      <LeftSidebar>
+        <SetForAnalysis 
+          onSummarizeSuccess={handleSummarizeSuccess} 
+          onClearSummary={handleClearSummary} 
+        />
+      </LeftSidebar>
+      <main className="flex-1 p-6 lg:p-8">
+        {summaryData ? (
+          <SummaryDisplay summary={summaryData} onClose={handleClearSummary} />
+        ) : (
+          <DocumentLibrary />
+        )}
+      </main>
     </div>
   );
 };

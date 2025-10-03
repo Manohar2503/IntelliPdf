@@ -120,7 +120,7 @@ export function SetForAnalysis() {
 
   setAnalysisSet(selectedAnalysisFiles.map(f => f.id));
   navigate('/viewer');
-  await fetch("http://localhost:8080/process", { method: "POST" });
+  // await fetch("http://localhost:8080/process", { method: "POST" });
 };
 
   const handleClear = () => {

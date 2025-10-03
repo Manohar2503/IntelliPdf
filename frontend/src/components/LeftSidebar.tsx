@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 import { useDocumentStore } from '@/store/useDocumentStore';
 import { useToast } from '@/hooks/use-toast';
 
-export function LeftSidebar() {
+interface LeftSidebarProps {
+  children?: React.ReactNode;
+}
+
+export function LeftSidebar({ children }: LeftSidebarProps) {
   const { documents, analysisSet, activeDocId, setActiveDoc, removeFromAnalysisSet, removeDocument } = useDocumentStore();
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
@@ -104,6 +108,7 @@ export function LeftSidebar() {
           </div>
         )}
       </div>
+      {children && <div className="p-4 border-t border-border">{children}</div>}
     </div>
   );
 }

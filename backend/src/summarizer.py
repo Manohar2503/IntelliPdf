@@ -14,11 +14,9 @@ def download_nltk_data():
         # Try to find the punkt tokenizer
         nltk.data.find('tokenizers/punkt')
     except LookupError:
-        print("Downloading required NLTK data...")
         # Download punkt tokenizer data
         nltk.download('punkt', quiet=True)
         nltk.download('punkt_tab', quiet=True)
-        print("NLTK data downloaded successfully")
 
 # Download required NLTK data at module initialization
 download_nltk_data()
@@ -90,10 +88,8 @@ class DocumentSummarizer:
                 truncation=True
             )
             summary_text = summary[0]["summary_text"]
-            print(f"\nChunk Summary:\n{summary_text}\n")
             return summary_text
         except Exception as e:
-            print(f"Error summarizing chunk: {str(e)}")
             return text[:self.max_chunk_length]  # Fallback to truncation
 
     def summarize_document(
@@ -103,7 +99,6 @@ class DocumentSummarizer:
     ) -> Dict[str, str]:
         # Ensure NLTK data is available
         download_nltk_data()
-        print("\n=== Starting Document Summarization ===\n")
         """
         Generate both detailed and concise summaries for a document
         
@@ -119,7 +114,7 @@ class DocumentSummarizer:
         section_summaries = []
         
         for section in sections:
-            section_text = section.get("text", "").strip()
+            section_text = section.get("content", "").strip() # Changed from "text" to "content"
             if not section_text:
                 continue
                 

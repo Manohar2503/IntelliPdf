@@ -96,6 +96,10 @@ class PDFExtractor:
             # If no target sections found, use general extraction
             if not sections:
                 sections = self._general_section_extraction(doc, filename)
+            
+            # If still no sections, create sections from page content as a fallback
+            if not sections:
+                sections = self._create_sections_from_pages(pdf_path, filename)
                 
             doc.close()
             

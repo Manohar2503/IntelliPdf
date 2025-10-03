@@ -30,6 +30,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from src.insights import router as insights_router
 from src.podcast import router as podcast_router
 from src.chatbot import get_chatbot_response, get_initial_summary, ChatbotResponse # Import chatbot functions
+from src.summarizer import DocumentSummarizer
 
 # Embedding
 from src.ranker import EmbeddingGenerator
@@ -44,6 +45,9 @@ class ChatbotQuery(BaseModel):
 # FastAPI App
 # ----------------------------
 app = FastAPI(title="PDF Insight Nexus")
+
+# Initialize summarizer
+summarizer = DocumentSummarizer()
 
 # ----------------------------
 # Required directories
@@ -79,12 +83,10 @@ CURRENT_JSON_PATH = OUTPUT_DIR / "current_doc.json"
 
 def load_json(path: Path):
     if path.exists():
-        print(f"Debug - Loading JSON from {path}")
         with open(path, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
                 docs = data.get("documents", [])
-                print(f"Debug - Found {len(docs)} documents in {path}")
                 for doc in docs:
                     if "sections" not in doc:
                         doc["sections"] = []
@@ -92,6 +94,28 @@ def load_json(path: Path):
             except json.JSONDecodeError:
                 return []
     return []
+
+
+@app.post("/summarize")
+async def get_summary():
+    """Get summary of the current document"""
+    try:
+        # Load the current document sections
+        docs = load_json(CURRENT_JSON_PATH)
+        if not docs:
+            raise HTTPException(status_code=404, detail="No document found")
+            
+        # Get the first document's sections
+        sections = docs[0].get("sections", [])
+        if not sections:
+            raise HTTPException(status_code=404, detail="No sections found in document")
+            
+        # Generate summary
+        summary_data = summarizer.summarize_document(sections)
+        
+        return {"summary": summary_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 past_docs = load_json(PAST_JSON_PATH)
@@ -200,7 +224,6 @@ async def chatbot_endpoint(query_data: ChatbotQuery):
     Endpoint to get a chatbot response based on a query.
     The backend will read the current_doc.json itself.
     """
-    print(f"Debug - Chatbot endpoint received query: {query_data.query}")
     response = get_chatbot_response(query_data.query)
     return response
 
@@ -210,11 +233,9 @@ async def get_summary():
     Get initial summary of the uploaded document(s)
     """
     try:
-        print("Debug - Generating document summary")
         summary = get_initial_summary()
         return summary
     except Exception as e:
-        print(f"Error generating summary: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -271,16 +292,11 @@ async def upload_new(file: UploadFile = File(...)):
 @app.post("/process")
 async def process_pdfs_endpoint():
     try:
-        print("Debug - Starting PDF processing")
         OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
         process_all_pdfs()
-        print("Debug - PDF processing completed")
         global past_docs, current_docs
         past_docs = load_json(PAST_JSON_PATH)
         current_docs = load_json(CURRENT_JSON_PATH)
-        # print("OUTPUT_DIR ->", OUTPUT_DIR.resolve())
-        # print("PAST_JSON_PATH ->", PAST_JSON_PATH.resolve())
-        # print("CURRENT_JSON_PATH ->", CURRENT_JSON_PATH.resolve())
         return {
             "message": "Processing complete",
             "output_files": ["output/output.json", "output/current_doc.json"]

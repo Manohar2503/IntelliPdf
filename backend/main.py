@@ -46,7 +46,6 @@ def extract_snippets(section_text, max_snippets=3):
 # Process PDFs and generate JSON
 # --------------------------
 def process_pdfs(pdf_paths, output_file):
-    print(f"\n=== Processing PDFs for {output_file} ===")
     pdf_extractor = PDFExtractor()
     embed_gen = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
     
@@ -58,7 +57,6 @@ def process_pdfs(pdf_paths, output_file):
         # Take only the most recent PDF if multiple files are provided
         if pdf_paths:
             pdf_paths = [max(pdf_paths, key=lambda p: p.stat().st_mtime)]
-        print(f"Processing single PDF for analysis: {pdf_paths[0].name if pdf_paths else 'none'}")
     else:
         # For output.json, load existing documents
         if output_path.exists():
@@ -71,17 +69,14 @@ def process_pdfs(pdf_paths, output_file):
                         all_docs_data = existing_data
                 except json.JSONDecodeError:
                     pass
-        print(f"Starting with {len(all_docs_data)} existing documents")
 
     for pdf_path in pdf_paths:
         filename = pdf_path.name
-        print(f"[INFO] Processing {filename}...")
 
         # Extract sections
         try:
             sections = pdf_extractor.extract_sections(str(pdf_path), filename) or []
         except Exception as e:
-            print(f"[ERROR] Failed to extract sections for {filename}: {e}")
             sections = []
 
         doc_id = str(uuid.uuid4())
@@ -117,7 +112,7 @@ def process_pdfs(pdf_paths, output_file):
                     "embedding": section_embedding
                 })
         else:
-            print(f"[WARN] No sections found for {filename}")
+            pass # No sections found, continue without warning
 
         all_docs_data.append(doc_data)
 
@@ -125,7 +120,6 @@ def process_pdfs(pdf_paths, output_file):
     output_path = OUTPUT_DIR / output_file
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump({"documents": all_docs_data}, f, indent=2)
-    print(f"Saved {len(all_docs_data)} documents to {output_file}")
 
     # Save output JSON
     OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
@@ -140,7 +134,6 @@ def process_pdfs(pdf_paths, output_file):
     output_path = OUTPUT_DIR / output_file
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output_json, f, indent=4, ensure_ascii=False)
-    print(f"[INFO] Processing complete. Output saved to {output_path}")
 
 # --------------------------
 # Main Entry
@@ -154,7 +147,7 @@ def main():
     if pdf_files_new:
         process_pdfs(pdf_files_new, "current_doc.json")
     else:
-        print("[INFO] No PDFs found in 'newpdf/'")
+        pass # No PDFs found, continue silently
 
 
 app = FastAPI()
@@ -196,12 +189,10 @@ class ChatbotRequest(BaseModel):
 @app.post("/chatbot", response_model=ChatbotResponse)
 async def chatbot_endpoint(request: ChatbotRequest):
     """Handle chatbot queries using the processed documents"""
-    print(f"\\n=== Chatbot Query: {request.query} ===")
     try:
         response = get_chatbot_response(request.query)
         return response
     except Exception as e:
-        print(f"Error processing chatbot query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/chatbot/summary")
@@ -238,8 +229,6 @@ def process_all_pdfs():
         if current_doc_path.exists():
             current_doc_path.unlink()
 
-        print("\nProcessing PDF for analysis...")
         process_pdfs(pdf_files, "current_doc.json")
-        print("PDF processing complete")
     else:
-        print("[INFO] No PDF found in 'newpdf/' directory")
+        pass # No PDF found, continue silently

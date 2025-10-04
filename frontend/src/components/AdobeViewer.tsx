@@ -43,25 +43,61 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
 
     /** 🔹 Expose APIs to parent */
     useImperativeHandle(ref, () => ({
-      goToPage: (page: number) => {
-        if (!adobePreviewRef.current) {
-          toast({
-            title: "Viewer Not Ready",
-            description: "Please wait for the PDF to load completely",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        adobePreviewRef.current.getAPIs().then((apis: any) => {
-          apis.gotoLocation(page).catch(() => {
+      goToPage: async (page: number) => {
+        try {
+          if (!adobePreviewRef.current) {
             toast({
-              title: "Navigation Error",
-              description: `Could not navigate to page ${page}`,
+              title: "Viewer Not Ready",
+              description: "Please wait for the PDF to load completely",
               variant: "destructive",
             });
+            return;
+          }
+
+          const apis = await adobePreviewRef.current.getAPIs();
+          
+          // First navigate to the page using the proper API
+          await apis.gotoLocation(page);
+          
+          // Wait a bit for the navigation to complete
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Now execute script to ensure the page is visible and highlighted
+          await apis.executeScript(`
+            (function() {
+              const pageElement = document.querySelector('[data-page-number="${page}"]');
+              if (pageElement) {
+                // First ensure the page is in view
+                pageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add a highlight effect
+                pageElement.style.transition = 'all 0.3s ease-in-out';
+                pageElement.style.backgroundColor = '#4a9eff33';
+                pageElement.style.outline = '2px solid #4a9eff';
+                
+                // Remove highlight after a moment
+                setTimeout(() => {
+                  pageElement.style.backgroundColor = '';
+                  pageElement.style.outline = 'none';
+                }, 1000);
+              }
+            })();
+          `);
+
+          toast({
+            title: "Page Navigation",
+            description: `Navigated to page ${page}`,
           });
-        });
+          
+        } catch (err) {
+          console.error("Navigation error:", err);
+          toast({
+            title: "Navigation Error",
+            description: `Could not navigate to page ${page}`,
+            variant: "destructive",
+          });
+          throw err;
+        }
       },
 
       openPDF: (url: string, name?: string) => {
@@ -72,6 +108,17 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
 
           setIsLoading(true);
           const pdfName = name || url.split("/").pop() || "Document";
+
+          // Clear existing preview if any
+          if (adobePreviewRef.current) {
+            adobePreviewRef.current = null;
+          }
+
+          // Create a timeout to handle stalled loading
+          const loadingTimeout = setTimeout(() => {
+            setIsLoading(false);
+            reject("PDF loading timed out");
+          }, 30000); // 30 second timeout
 
           const previewPromise = adobeViewRef.current.previewFile(
             {
@@ -98,10 +145,22 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
     window.AdobeDC.View.Enum.CallbackType.PREVIEW_READY,
     () => {
       setIsLoading(false);
-      console.log("PDF preview ready:", pdfDoc.name);
+      clearTimeout(loadingTimeout);
+      console.log("PDF preview ready:", pdfName);
+      resolve();
     }
   );
-}) // Added this closing brace and parenthesis
+
+  previewInstance.registerCallback(
+    window.AdobeDC.View.Enum.CallbackType.DOCUMENT_LOAD_ERROR,
+    (error: any) => {
+      setIsLoading(false);
+      clearTimeout(loadingTimeout);
+      console.error("PDF load error:", error);
+      reject(error);
+    }
+  );
+})
           .catch((err: any) => {
             console.error("❌ Error loading PDF:", err);
             setIsLoading(false);

@@ -24,10 +24,11 @@ download_nltk_data()
 class DocumentSummarizer:
     def __init__(
         self,
-        model_name: str = "t5-small",  # Changed to t5-small which is much smaller (~242MB)
-        max_chunk_length: int = 512,
-        min_chunk_length: int = 50,
-        overlap_length: int = 25
+        model_name: str = "facebook/bart-large-cnn",  # Changed to BART for better summarization
+        max_chunk_length: int = 1024,  # Increased chunk size
+        min_chunk_length: int = 100,
+        overlap_length: int = 50,
+        compression_ratio: float = 0.2  # Added compression ratio for more concise summaries
     ):
         """
         Initialize the document summarizer
@@ -37,11 +38,13 @@ class DocumentSummarizer:
             max_chunk_length: Maximum token length for each chunk
             min_chunk_length: Minimum token length for each chunk
             overlap_length: Number of tokens to overlap between chunks
+            compression_ratio: Target ratio for summary length compared to original
         """
         self.summarizer = pipeline("summarization", model=model_name)
         self.max_chunk_length = max_chunk_length
         self.min_chunk_length = min_chunk_length
         self.overlap_length = overlap_length
+        self.compression_ratio = compression_ratio
 
     def _split_into_chunks(self, text: str) -> List[str]:
         """Split long text into smaller chunks with overlap"""
@@ -74,10 +77,33 @@ class DocumentSummarizer:
             
         return chunks
 
-    def _summarize_chunk(self, text: str, ratio: float = 0.3) -> str:
+    def _format_as_bullets(self, text: str) -> str:
+        """Format text as bullet points"""
+        sentences = sent_tokenize(text)
+        # Filter out very short sentences or incomplete ones
+        valid_sentences = [s.strip() for s in sentences if len(s.split()) > 5 and s.strip().endswith(('.', '!', '?'))]
+        
+        # Convert sentences to bullet points
+        bullet_points = []
+        current_point = []
+        
+        for sentence in valid_sentences:
+            current_point.append(sentence)
+            if len(' '.join(current_point).split()) >= 20:  # Aim for reasonable bullet point length
+                bullet_points.append('• ' + ' '.join(current_point))
+                current_point = []
+                
+        if current_point:  # Add any remaining sentences
+            bullet_points.append('• ' + ' '.join(current_point))
+            
+        return '\n'.join(bullet_points)
+
+    def _summarize_chunk(self, text: str, ratio: float = None) -> str:
         """Summarize a single chunk of text"""
         try:
-            max_length = max(int(len(text.split()) * ratio), self.min_chunk_length)
+            ratio = ratio or self.compression_ratio
+            text_length = len(text.split())
+            max_length = max(int(text_length * ratio), self.min_chunk_length)
             min_length = min(self.min_chunk_length, max_length - 50)
             
             summary = self.summarizer(
@@ -90,6 +116,7 @@ class DocumentSummarizer:
             summary_text = summary[0]["summary_text"]
             return summary_text
         except Exception as e:
+            print(f"Summarization error: {str(e)}")
             return text[:self.max_chunk_length]  # Fallback to truncation
 
     def summarize_document(
@@ -109,46 +136,81 @@ class DocumentSummarizer:
         Returns:
             Dict containing different types of summaries
         """
-        # Combine all section texts
-        full_text = ""
-        section_summaries = []
+        print("\nStarting document summarization...")
+        
+        # Group sections by importance/type
+        main_sections = []
+        supplementary_sections = []
         
         for section in sections:
-            section_text = section.get("content", "").strip() # Changed from "text" to "content"
+            section_text = section.get("content", "").strip()
             if not section_text:
                 continue
                 
-            # Generate section summary
+            # Determine section importance by length and position
+            if len(section_text.split()) > 200:  # Consider longer sections as main content
+                main_sections.append(section)
+            else:
+                supplementary_sections.append(section)
+        
+        # Process main sections first
+        main_summaries = []
+        section_summaries = []
+        all_text = ""
+        
+        print(f"\nProcessing {len(main_sections)} main sections...")
+        for section in main_sections:
+            section_text = section.get("content", "").strip()
+            all_text += section_text + " "
+            
             if hierarchical:
-                section_summary = self._summarize_chunk(section_text)
+                # Create more concise section summaries
+                section_summary = self._summarize_chunk(section_text, ratio=0.15)  # More aggressive summarization
+                formatted_summary = self._format_as_bullets(section_summary)
+                main_summaries.append(section_summary)
                 section_summaries.append({
                     "heading": section.get("heading", "Untitled Section"),
-                    "summary": section_summary
+                    "summary": formatted_summary
                 })
-            
-            full_text += section_text + " "
+        
+        # Add supplementary sections if needed
+        if supplementary_sections:
+            print(f"\nProcessing {len(supplementary_sections)} supplementary sections...")
+            for section in supplementary_sections:
+                section_text = section.get("content", "").strip()
+                if len(section_text.split()) > 50:  # Only include substantial sections
+                    all_text += section_text + " "
 
         # Split and summarize the full document
-        chunks = self._split_into_chunks(full_text)
+        print("\nGenerating document-level summary...")
+        chunks = self._split_into_chunks(all_text)
         chunk_summaries = []
         
-        for chunk in chunks:
+        for i, chunk in enumerate(chunks):
             if len(chunk.strip()) > self.min_chunk_length:
-                summary = self._summarize_chunk(chunk)
+                print(f"Processing chunk {i+1}/{len(chunks)}...")
+                summary = self._summarize_chunk(chunk, ratio=0.2)  # More aggressive summarization
                 chunk_summaries.append(summary)
 
         # Create final summary from chunk summaries
         if chunk_summaries:
-            final_summary = self._summarize_chunk(
+            # First get a concise summary
+            intermediate_summary = self._summarize_chunk(
                 " ".join(chunk_summaries),
-                ratio=0.5
+                ratio=0.3
             )
+            # Then format as bullet points
+            final_summary = self._format_as_bullets(intermediate_summary)
         else:
             final_summary = "Could not generate summary. Document may be empty or too short."
 
+        # Create a more detailed summary but still in bullet points
+        detailed_summary = self._format_as_bullets(" ".join(chunk_summaries)) if chunk_summaries else ""
+
+        print("\nSummarization complete!")
         return {
             "brief_summary": final_summary,
-            "detailed_summary": " ".join(chunk_summaries),
+            "detailed_summary": detailed_summary,
             "section_summaries": section_summaries if hierarchical else []
         }
 

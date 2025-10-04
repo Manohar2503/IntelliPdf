@@ -70,20 +70,30 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
     fetchRecommendations();
   }, [context]);
 
+const [loadingPage, setLoadingPage] = useState<number | null>(null);
+
 const handleJumpToPage = async (rec: Recommendation, page: number) => {
   if (!viewerRef.current || !rec.pdf_url) return;
 
   try {
-    // Only open if PDF is different
-    if (viewerRef.current.currentPdfUrl !== rec.pdf_url) {
-      await viewerRef.current.openPDF(rec.pdf_url, rec.title);
-      viewerRef.current.currentPdfUrl = rec.pdf_url;
-    }
+    setLoadingPage(page);
+    let attempts = 0;
+    const maxAttempts = 3;
 
-    // Now safe to jump to page
-    viewerRef.current.goToPage(page);
+    while (attempts < maxAttempts) {
+      try {
+        await viewerRef.current.goToPage(page);
+        setLoadingPage(null);
+        return;
+      } catch (error) {
+        attempts++;
+        if (attempts === maxAttempts) throw error;
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
   } catch (err) {
     console.error("Error jumping to page:", err);
+    setLoadingPage(null);
   }
 };
 
@@ -161,10 +171,17 @@ const handleJumpToPage = async (rec: Recommendation, page: number) => {
   size="sm"
   variant="outline"
   onClick={() => handleJumpToPage(rec, match.page_number)}
-  className="mt-1 w-full text-xs"
-  disabled={loading}
+  className="mt-1 w-full text-xs relative"
+  disabled={loadingPage !== null}
 >
-  Jump to Page {match.page_number}
+  {loadingPage === match.page_number ? (
+    <>
+      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+      Loading...
+    </>
+  ) : (
+    `Jump to Page ${match.page_number}`
+  )}
 </Button>
                   </div>
                 ))}

@@ -29,6 +29,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 # Routers
 from src.insights import router as insights_router
 from src.podcast import router as podcast_router
+from src.images import router as images_router
 from src.chatbot import get_chatbot_response, get_initial_summary, ChatbotResponse # Import chatbot functions
 from src.summarizer import DocumentSummarizer
 
@@ -74,6 +75,7 @@ app.add_middleware(
 # Mount static folders
 # ----------------------------
 
+# Static directories are mounted at the end of the file
 # ----------------------------
 # JSON paths
 # ----------------------------
@@ -224,8 +226,45 @@ async def chatbot_endpoint(query_data: ChatbotQuery):
     Endpoint to get a chatbot response based on a query.
     The backend will read the current_doc.json itself.
     """
-    response = get_chatbot_response(query_data.query)
-    return response
+    try:
+        print(f"\n=== Chatbot Endpoint ===")
+        print(f"Received query: {query_data.query}")
+
+        # Verify document exists
+        current_doc_path = Path("output/current_doc.json")
+        if not current_doc_path.exists():
+            print("Error: No document loaded (current_doc.json not found)")
+            return ChatbotResponse(
+                response="Please upload a document first.",
+                sources=[],
+                relevant_images=[]
+            )
+            
+        response = get_chatbot_response(query_data.query)
+        print(f"Generated response text: {response.response[:100]}...")
+        print(f"Found {len(response.relevant_images)} relevant images")
+        
+        # Log full response for debugging
+        print("\nFull response data:")
+        print(f"Response text length: {len(response.response)}")
+        print(f"Number of sources: {len(response.sources)}")
+        print(f"Number of images: {len(response.relevant_images)}")
+        for img in response.relevant_images:
+            print(f"Image: {img.filename} at page {img.page} (path: {img.path})")
+        
+        return response
+
+    except Exception as e:
+        import traceback
+        print(f"\nError in chatbot endpoint:")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error message: {str(e)}")
+        print("Traceback:")
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 @app.get("/summary", response_model=ChatbotResponse)
 async def get_summary():
@@ -338,6 +377,7 @@ async def cleanup_folders():
 # ----------------------------
 app.include_router(insights_router)
 app.include_router(podcast_router)
+app.include_router(images_router)
 app.mount("/newpdf", StaticFiles(directory=NEWPDF_DIR), name="newpdf")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 # app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

@@ -1,16 +1,16 @@
 {
     "metadata": {
         "total_documents": 1,
-        "processing_timestamp": "2025-10-04T18:58:12.582142"
+        "processing_timestamp": "2025-10-24T13:43:54.136782"
     },
     "documents": [
         {
-            "doc_id": "9a423da4-57fc-4b6e-9991-73c401930543",
+            "doc_id": "c51abac1-a11c-4512-8289-7cccd4a9a552",
             "file_path": "newpdf\\UNIT-II.pdf",
             "title": "UNIT-II",
             "sections": [
                 {
-                    "section_id": "478fa966-4db2-41aa-ab9c-1eedb2ab0c1c",
+                    "section_id": "73529a9c-8805-41fd-9b6a-3e0df2f24b29",
                     "heading": "Asst. Professor, Dept of Civil Engineering.",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -1572,7 +1572,7 @@
                     ]
                 },
                 {
-                    "section_id": "040d8144-e35b-4508-a8fd-77aead840fe5",
+                    "section_id": "781792bf-9627-48ca-a9ba-561345056dce",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -2356,7 +2356,7 @@
                     ]
                 },
                 {
-                    "section_id": "006c9c7f-068e-4f67-bbc8-2fb887840e8d",
+                    "section_id": "f2127243-bd48-4586-beae-22121aefe079",
                     "heading": "UNIT-II",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -3529,7 +3529,7 @@
                     ]
                 },
                 {
-                    "section_id": "89d72e22-a72e-4d0f-900e-499a39392ee3",
+                    "section_id": "602ed548-4944-4df3-9c2d-753440307e08",
                     "heading": "Green buildings aim to minimize their environmental impact by utilizing",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -4702,7 +4702,7 @@
                     ]
                 },
                 {
-                    "section_id": "49054dc3-8993-4cc1-bb54-630e354c512a",
+                    "section_id": "129e8755-52d6-4b42-8dbc-0349fe9b2af7",
                     "heading": "1. Solar Power: Solar energy is a popular choice for green buildings. Photovoltaic (PV)",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -5486,7 +5486,7 @@
                     ]
                 },
                 {
-                    "section_id": "4e5a2494-3507-4f23-a3cf-aaf0d72a633a",
+                    "section_id": "8193144b-6f17-4bbf-ab0e-840265c4b2da",
                     "heading": "2. Wind Power: Wind turbines can be installed on-site or nearby to harness wind energy",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -6659,7 +6659,7 @@
                     ]
                 },
                 {
-                    "section_id": "659a3f11-1bad-4970-9257-618b2692b352",
+                    "section_id": "62757a42-9e9c-4dd7-b345-5be921ed7e26",
                     "heading": "3. Geothermal Energy: Geothermal systems utilize the stable temperature underground to",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -7832,7 +7832,7 @@
                     ]
                 },
                 {
-                    "section_id": "06dcade0-d677-4747-91a7-089193731e15",
+                    "section_id": "de6d3f0d-01b2-4b2a-9329-ff4909b260c2",
                     "heading": "4. Biomass: Biomass energy utilizes organic materials like wood pellets, agricultural",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -9005,7 +9005,7 @@
                     ]
                 },
                 {
-                    "section_id": "4281c104-59b8-4c00-9717-b44b00a4e50a",
+                    "section_id": "e5ba10f4-a876-4664-8420-6a55550f6d47",
                     "heading": "5. Hydropower: Small-scale hydropower systems can be incorporated into buildings that",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -10178,7 +10178,7 @@
                     ]
                 },
                 {
-                    "section_id": "8fb929fd-3ff8-408d-9855-0ccd14a490b1",
+                    "section_id": "bb2cc659-d532-46b0-afe3-63e5bfbf70b1",
                     "heading": "6. Tidal Energy: In coastal areas with strong tidal currents, tidal energy converters can be",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -11351,7 +11351,7 @@
                     ]
                 },
                 {
-                    "section_id": "fc47bb1d-9de3-4ef2-a0a1-79715cf5c245",
+                    "section_id": "29bb699c-9c0b-46be-823c-137df11ecfec",
                     "heading": "7. Micro Combined Heat and Power (CHP): CHP systems simultaneously generate",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -12524,7 +12524,7 @@
                     ]
                 },
                 {
-                    "section_id": "05a85670-50f9-4ef6-8542-eaed37d73cf6",
+                    "section_id": "76a2ff64-8ff2-4e15-91c4-7ae751defafe",
                     "heading": "8. Fuel Cells: Fuel cells produce electricity through an electrochemical process, often",
                     "heading_level": "H1",
                     "page_number": 1,
@@ -13697,7 +13697,7 @@
                     ]
                 },
                 {
-                    "section_id": "a730cdcb-a8ea-4e1e-b7b2-ced40c1e9a9c",
+                    "section_id": "702c9c1b-0438-4749-9b66-2d643d6b2c7a",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 2,
@@ -14481,7 +14481,7 @@
                     ]
                 },
                 {
-                    "section_id": "2e6cf5c7-d86f-4cf0-9d31-c033a247cb01",
+                    "section_id": "2ae0e960-32d9-4dfe-96ba-e181ae29db13",
                     "heading": "These renewable energy sources can be integrated into green buildings to reduce",
                     "heading_level": "H1",
                     "page_number": 2,
@@ -15654,7 +15654,7 @@
                     ]
                 },
                 {
-                    "section_id": "f1358526-9565-485e-b7f5-2d9dae19fa66",
+                    "section_id": "d88f0b86-cbd4-46c9-8f48-fc7d15b943e5",
                     "heading": "CONVENTIONAL AND NON CONVENTIONAL ENERGY:",
                     "heading_level": "H1",
                     "page_number": 2,
@@ -16827,7 +16827,7 @@
                     ]
                 },
                 {
-                    "section_id": "2fd3398d-dea4-4822-9b17-8b5b3e657bca",
+                    "section_id": "27cd5d7b-7d17-4329-b96e-0679bfdd4ca7",
                     "heading": "Conventional energy sources are those that have been traditionally used for",
                     "heading_level": "H1",
                     "page_number": 2,
@@ -18389,7 +18389,7 @@
                     ]
                 },
                 {
-                    "section_id": "d9582033-6b7a-4f1c-9084-ecb6747689d9",
+                    "section_id": "c7166a9e-f3c5-4767-8252-dacd78a70e13",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 3,
@@ -19173,7 +19173,7 @@
                     ]
                 },
                 {
-                    "section_id": "1fa1b24a-55d3-4d54-a4f4-b49510d8a492",
+                    "section_id": "3c4bee98-5080-40ee-b0e6-5f24e593579b",
                     "heading": "Advantages of Conventional Energy:",
                     "heading_level": "H1",
                     "page_number": 3,
@@ -20735,7 +20735,7 @@
                     ]
                 },
                 {
-                    "section_id": "ffccbd92-e94d-46d3-a7ad-403a7af083c9",
+                    "section_id": "b22e6d0b-0193-4fbc-bfea-2de5fc269820",
                     "heading": "Disadvantages of Conventional Energy:",
                     "heading_level": "H1",
                     "page_number": 3,
@@ -22297,7 +22297,7 @@
                     ]
                 },
                 {
-                    "section_id": "d967ad1d-2db2-4227-a3a8-732b77254de4",
+                    "section_id": "0e48d73e-a950-4fea-b263-dbf1f5a8382d",
                     "heading": "2. Non-Conventional Energy:",
                     "heading_level": "H1",
                     "page_number": 3,
@@ -23859,7 +23859,7 @@
                     ]
                 },
                 {
-                    "section_id": "a911f0f2-b54b-42a7-ac90-5096fce941c7",
+                    "section_id": "6efb9c91-68af-452b-b20f-8fbc98ba8c09",
                     "heading": "Advantages of Non-Conventional Energy:",
                     "heading_level": "H1",
                     "page_number": 3,
@@ -25421,7 +25421,7 @@
                     ]
                 },
                 {
-                    "section_id": "4e8a8aab-8a1b-4636-8d54-db52cba9c327",
+                    "section_id": "aa4f1ad9-e130-44be-b29b-411eae4708dd",
                     "heading": "Disadvantages of Non-Conventional Energy:",
                     "heading_level": "H1",
                     "page_number": 3,
@@ -26983,7 +26983,7 @@
                     ]
                 },
                 {
-                    "section_id": "d99952ed-058b-40ed-90cd-05859d8e00ef",
+                    "section_id": "ca4b3b00-1332-41ac-a39d-bb03511a20df",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 4,
@@ -27767,7 +27767,7 @@
                     ]
                 },
                 {
-                    "section_id": "236ceb59-fa8d-42d7-b758-1329116e1ac1",
+                    "section_id": "9a0f24b8-2c40-4b13-90d5-6426dc8b438f",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 5,
@@ -28551,7 +28551,7 @@
                     ]
                 },
                 {
-                    "section_id": "7aee4b45-4b85-485c-9937-570138001621",
+                    "section_id": "fd7b4cfc-1290-45e6-a86b-61dbb9bd2521",
                     "heading": "Solar energy is radiant light and heat from the Sun that is harnessed using a",
                     "heading_level": "H1",
                     "page_number": 5,
@@ -30113,7 +30113,7 @@
                     ]
                 },
                 {
-                    "section_id": "75153442-918d-4a65-a24e-a3cb63d5bac5",
+                    "section_id": "10046ef5-0783-40d2-8a0e-dcde608b6e49",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -30897,7 +30897,7 @@
                     ]
                 },
                 {
-                    "section_id": "6b4687cc-40cd-425b-8fbe-1662b7b15bc1",
+                    "section_id": "ef6c2581-f15e-4e61-9cbe-c6de77d19760",
                     "heading": "PASSIVE SOLAR HEATING:",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -32070,7 +32070,7 @@
                     ]
                 },
                 {
-                    "section_id": "8c24f6e9-14a5-4420-ab23-26ae9ebe5325",
+                    "section_id": "6f9d536b-7176-4fdb-a443-575073d30803",
                     "heading": "1. Solar Orientation: Passive solar buildings are designed to maximize their south-",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -32854,7 +32854,7 @@
                     ]
                 },
                 {
-                    "section_id": "8d502d99-d71d-4eed-becc-75c6c492e62b",
+                    "section_id": "44f9cd64-02bf-42d5-ac8d-5d94fb27b03a",
                     "heading": "2. Solar Collectors: Large windows or glazing on the south-facing side act as solar",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -33638,7 +33638,7 @@
                     ]
                 },
                 {
-                    "section_id": "90b163a7-c279-4e96-a4b0-7ed9441e1495",
+                    "section_id": "e549538c-3126-4514-8b77-6bde91ffe3d9",
                     "heading": "3. Thermal Mass: High thermal mass materials, such as concrete, stone, or brick, are",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -34811,7 +34811,7 @@
                     ]
                 },
                 {
-                    "section_id": "7e6b9d67-33c9-4770-be27-5a6561fa5eb0",
+                    "section_id": "ae042127-4211-48f0-af3e-313d2a6a6b94",
                     "heading": "4. Insulation: Adequate insulation is essential to prevent heat loss during colder periods,",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -35595,7 +35595,7 @@
                     ]
                 },
                 {
-                    "section_id": "5a512681-f5d0-4a44-9377-6e55eb42d0ee",
+                    "section_id": "d4e7ba27-f6f3-4331-9ad3-f3e4b8eea504",
                     "heading": "5. Overhangs and Shading: Properly designed overhangs or shading devices are used to",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -36379,7 +36379,7 @@
                     ]
                 },
                 {
-                    "section_id": "b32e29b5-962b-442d-8f7c-714778f1898d",
+                    "section_id": "bbe0d732-6757-4c16-98b8-c9588d1642d0",
                     "heading": "6. Natural Ventilation: Strategically placed windows and vents allow for natural cross-",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -37163,7 +37163,7 @@
                     ]
                 },
                 {
-                    "section_id": "2270fc7a-700c-4415-9073-b5931f5cfa46",
+                    "section_id": "da825220-ba9a-4b59-8ed7-f72dae8b1244",
                     "heading": "Advantages of Passive Solar Heating:",
                     "heading_level": "H1",
                     "page_number": 6,
@@ -38725,7 +38725,7 @@
                     ]
                 },
                 {
-                    "section_id": "3126b77f-5862-4e26-b08c-8d3f66522469",
+                    "section_id": "3631d02a-4cf4-4e10-8253-1802ada843db",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 7,
@@ -39509,7 +39509,7 @@
                     ]
                 },
                 {
-                    "section_id": "0b9b9c59-8b94-4ea4-9d81-07af30a6bc08",
+                    "section_id": "7fcf4d05-32fc-421e-802b-59e49e55c520",
                     "heading": "Limitations and Considerations:",
                     "heading_level": "H1",
                     "page_number": 7,
@@ -41071,7 +41071,7 @@
                     ]
                 },
                 {
-                    "section_id": "a37cd4ac-f3d4-441e-809f-71449fe9f17e",
+                    "section_id": "a64302e8-016c-408e-9ab0-1d37ac0aa22c",
                     "heading": "METHODS OF PASSIVE SOLAR HEATING:",
                     "heading_level": "H1",
                     "page_number": 7,
@@ -42633,7 +42633,7 @@
                     ]
                 },
                 {
-                    "section_id": "62ff8104-9a14-4750-a49b-74bd6ebbceea",
+                    "section_id": "e538f1f5-0b83-4864-9c37-52c914459ce5",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 8,
@@ -44195,7 +44195,7 @@
                     ]
                 },
                 {
-                    "section_id": "7ce362eb-b45c-41d3-84ba-26a332d70b19",
+                    "section_id": "5e21c233-1982-4641-af97-b7dbc8324180",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 9,
@@ -45757,7 +45757,7 @@
                     ]
                 },
                 {
-                    "section_id": "a90542a3-f265-41f5-aeaa-f92e6f455793",
+                    "section_id": "92f74ee8-c32e-4581-bd2c-48502ddb14e7",
                     "heading": "(In Winter Days)",
                     "heading_level": "H1",
                     "page_number": 9,
@@ -47319,7 +47319,7 @@
                     ]
                 },
                 {
-                    "section_id": "0a8f3eef-9ec4-49c2-b1c7-645a9330cae0",
+                    "section_id": "612c106e-612d-4765-9575-362c1c2d2768",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 10,
@@ -48881,7 +48881,7 @@
                     ]
                 },
                 {
-                    "section_id": "f843dd64-8617-4062-8825-517867ed57ed",
+                    "section_id": "29c43768-3720-44f5-bace-f95ca7dae221",
                     "heading": "Passive solar collection refers to the utilization of natural processes and design",
                     "heading_level": "H1",
                     "page_number": 10,
@@ -50443,7 +50443,7 @@
                     ]
                 },
                 {
-                    "section_id": "e4af26a2-dc6c-4d41-af7d-085881b03087",
+                    "section_id": "dcf79033-8d39-49de-95af-04fd6e9b0311",
                     "heading": "1. Orientation: Proper orientation of a building is crucial for passive solar collection. The longest",
                     "heading_level": "H1",
                     "page_number": 10,
@@ -51616,7 +51616,7 @@
                     ]
                 },
                 {
-                    "section_id": "b5e8055a-dff1-49a6-8973-8572a502d322",
+                    "section_id": "e63e7347-e57d-49e2-8f4d-f55e83386837",
                     "heading": "2. Solar Aperture: This is the part of the building that captures sunlight. It usually consists",
                     "heading_level": "H1",
                     "page_number": 10,
@@ -52400,7 +52400,7 @@
                     ]
                 },
                 {
-                    "section_id": "61e83cba-b934-4b72-9623-3a2cc99ba488",
+                    "section_id": "7d3d4126-3f3c-46ac-8972-cd222aa1e86f",
                     "heading": "3. Thermal Mass: Thermal mass refers to materials with high heat capacity, such as",
                     "heading_level": "H1",
                     "page_number": 10,
@@ -53573,7 +53573,7 @@
                     ]
                 },
                 {
-                    "section_id": "0f92b906-9d02-4262-b420-68b37522172a",
+                    "section_id": "bdddc54c-d4d7-478b-9596-6fae37f115cb",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 11,
@@ -54357,7 +54357,7 @@
                     ]
                 },
                 {
-                    "section_id": "5de62eb8-2917-44ba-887e-e8a16ddb0574",
+                    "section_id": "d1d9a80b-248c-4bed-9990-15fd2e1413de",
                     "heading": "4. Insulation: Adequate insulation is important to prevent heat loss during colder periods",
                     "heading_level": "H1",
                     "page_number": 11,
@@ -55530,7 +55530,7 @@
                     ]
                 },
                 {
-                    "section_id": "268b9909-f2a4-488c-b95b-e42a34235897",
+                    "section_id": "46dbfff2-fac3-4efa-85f4-e398d338c21a",
                     "heading": "5. Distribution Mechanism: The captured solar energy is circulated throughout the",
                     "heading_level": "H1",
                     "page_number": 11,
@@ -57092,7 +57092,7 @@
                     ]
                 },
                 {
-                    "section_id": "572fdab9-8961-46da-8181-8d48d5903f00",
+                    "section_id": "c3a1f0dc-cfb7-41f5-81f2-bfaf6a67679b",
                     "heading": "1. WIND POWER ENERGY:",
                     "heading_level": "H1",
                     "page_number": 11,
@@ -58265,7 +58265,7 @@
                     ]
                 },
                 {
-                    "section_id": "42ecdae1-cdce-4d40-8e22-7f3ae653558f",
+                    "section_id": "b488601c-223a-41c3-bb86-3ab18325b05b",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 12,
@@ -59049,7 +59049,7 @@
                     ]
                 },
                 {
-                    "section_id": "1d7fd889-c834-4ab8-be62-2fc90f5759e0",
+                    "section_id": "08b1232d-91ea-41b6-9f11-aff74181837e",
                     "heading": "1. Wind Turbines: Wind turbines are the primary technology used to capture wind",
                     "heading_level": "H1",
                     "page_number": 12,
@@ -60611,7 +60611,7 @@
                     ]
                 },
                 {
-                    "section_id": "20654261-9c17-42b9-975b-f77908c91118",
+                    "section_id": "cb756682-1999-429f-ae7d-4c9684c25d87",
                     "heading": "2. Wind Conversion: When the wind blows, it causes the rotor blades to rotate. This",
                     "heading_level": "H1",
                     "page_number": 12,
@@ -61784,7 +61784,7 @@
                     ]
                 },
                 {
-                    "section_id": "a027b34a-e339-4404-b73c-e5da17bf3298",
+                    "section_id": "0ba3cab9-edd5-4299-ba2c-9cf175513685",
                     "heading": "3. Wind Speed and Power Output: The power output of a wind turbine is proportional",
                     "heading_level": "H1",
                     "page_number": 12,
@@ -63346,7 +63346,7 @@
                     ]
                 },
                 {
-                    "section_id": "45c5c4f2-f744-4e6a-bc2c-feee98b68258",
+                    "section_id": "315c75d5-d2f7-4f30-99cb-cec6643f2d2a",
                     "heading": "Advantages of Wind Energy:",
                     "heading_level": "H1",
                     "page_number": 12,
@@ -64908,7 +64908,7 @@
                     ]
                 },
                 {
-                    "section_id": "0e757034-5538-430c-994d-879124a0773e",
+                    "section_id": "5e0e3f4d-75db-425f-9ab0-738e5ffa42b5",
                     "heading": "Challenges and Considerations:",
                     "heading_level": "H1",
                     "page_number": 12,
@@ -66081,7 +66081,7 @@
                     ]
                 },
                 {
-                    "section_id": "c1ffd09b-4004-48ec-964a-5390346fbae6",
+                    "section_id": "ec357505-0949-444f-8cd9-4be5b16aaccb",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 13,
@@ -67643,7 +67643,7 @@
                     ]
                 },
                 {
-                    "section_id": "f6eeef50-591c-4973-97c7-5e8fd08e6949",
+                    "section_id": "9211648e-a600-4df0-af57-fe1ba05006ae",
                     "heading": "2. HYDRO POWER ENERGY:",
                     "heading_level": "H1",
                     "page_number": 13,
@@ -69205,7 +69205,7 @@
                     ]
                 },
                 {
-                    "section_id": "f1862b08-1825-4516-8831-3fa60a934ae7",
+                    "section_id": "5b01e1af-000c-416b-b36c-abbaf8b856cd",
                     "heading": "Here's how hydropower energy works:",
                     "heading_level": "H1",
                     "page_number": 13,
@@ -70767,7 +70767,7 @@
                     ]
                 },
                 {
-                    "section_id": "57738784-8d99-4eb4-a703-c2fcbf327b9e",
+                    "section_id": "173fb762-0777-4201-9fc2-e1c2b93197ec",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 14,
@@ -71940,7 +71940,7 @@
                     ]
                 },
                 {
-                    "section_id": "58b4d356-7923-4092-a65c-b56e367f4d80",
+                    "section_id": "283875c5-5822-4c04-8fed-1eccebbf3afc",
                     "heading": "Advantages of Hydropower:",
                     "heading_level": "H1",
                     "page_number": 14,
@@ -73502,7 +73502,7 @@
                     ]
                 },
                 {
-                    "section_id": "144acdb2-fa50-4754-8459-ee751a59b3b5",
+                    "section_id": "4ed0044b-e740-4a95-964f-6518d091ea1b",
                     "heading": "Challenges and Considerations:",
                     "heading_level": "H1",
                     "page_number": 14,
@@ -75064,7 +75064,7 @@
                     ]
                 },
                 {
-                    "section_id": "a378df67-bb44-48dc-b367-6938ef89505c",
+                    "section_id": "648bcf6f-567f-4b2b-8cf2-f4202b4759e9",
                     "heading": "3. GEOTHERMAL ENERGY: (Geo=Earth & Thermal=Heat)",
                     "heading_level": "H1",
                     "page_number": 14,
@@ -76626,7 +76626,7 @@
                     ]
                 },
                 {
-                    "section_id": "408974a0-ea0f-476d-b549-281bc5b703ff",
+                    "section_id": "d533206f-50e5-4bdd-83a5-ba696e15094f",
                     "heading": "a) Direct Geothermal Energy:",
                     "heading_level": "H1",
                     "page_number": 14,
@@ -77799,7 +77799,7 @@
                     ]
                 },
                 {
-                    "section_id": "6cbf776b-6e60-49a0-b511-d83eb1c31144",
+                    "section_id": "d2892138-4c67-4e47-8f57-7977fede88e2",
                     "heading": "b) Geothermal Heat Pumps:",
                     "heading_level": "H1",
                     "page_number": 14,
@@ -78583,7 +78583,7 @@
                     ]
                 },
                 {
-                    "section_id": "3a315bb9-f1e9-4bf6-81ad-24cc9389efbd",
+                    "section_id": "e4d4b66b-edc9-4e6a-8fc6-712f5a74ec38",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 15,
@@ -79367,7 +79367,7 @@
                     ]
                 },
                 {
-                    "section_id": "06986b5c-77f4-4278-84ef-0a481958511e",
+                    "section_id": "28393d5d-9bad-4574-9d09-1e118a1b420a",
                     "heading": "c) Geothermal Power Plants:",
                     "heading_level": "H1",
                     "page_number": 15,
@@ -80929,7 +80929,7 @@
                     ]
                 },
                 {
-                    "section_id": "5976f072-3c8b-4e99-9116-5951ae5606fb",
+                    "section_id": "29bede43-af10-4266-ba05-55c0d2e9d5f9",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -82491,7 +82491,7 @@
                     ]
                 },
                 {
-                    "section_id": "7ee92c52-a045-417f-9835-551c6f26f49b",
+                    "section_id": "eeccc281-cb6a-4228-b637-32553d4dcea7",
                     "heading": "1. Dry Steam Power Plants: These plants utilize high-pressure, high-temperature steam",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -84053,7 +84053,7 @@
                     ]
                 },
                 {
-                    "section_id": "bd7f6023-950d-4a82-8724-143208c1836c",
+                    "section_id": "8c0cb297-5bcd-4496-aad5-c5c4986dade9",
                     "heading": "2. Flash Steam Power Plants: These plants take high-pressure hot water from the",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -85615,7 +85615,7 @@
                     ]
                 },
                 {
-                    "section_id": "37e87d89-6d0b-4c76-8327-9b442f2da085",
+                    "section_id": "b62ad03a-1e87-4f16-9705-0a3d306d98bf",
                     "heading": "3. Binary Cycle Power Plants: In these plants, lower temperature geothermal resources",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -86788,7 +86788,7 @@
                     ]
                 },
                 {
-                    "section_id": "69dc6539-470f-4f42-92ef-2fbd9c7421e2",
+                    "section_id": "f311c763-3b10-48a5-b5a0-7cecda527a01",
                     "heading": "The advantage of binary cycle plants is that they can utilize geothermal sources with",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -87572,7 +87572,7 @@
                     ]
                 },
                 {
-                    "section_id": "00202b61-cb46-48a3-bef0-8fb85fbadebd",
+                    "section_id": "0ff902f9-a7dc-4432-9efe-1e3c04521e83",
                     "heading": "Advantages of Geothermal Energy Power Plants:",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -89134,7 +89134,7 @@
                     ]
                 },
                 {
-                    "section_id": "0564de91-7e35-4664-ba5d-83b66c461bf7",
+                    "section_id": "c6e9af4f-f794-4a99-ad29-f58fade0aa29",
                     "heading": "Disadvantages of Geothermal Energy Power Plants:",
                     "heading_level": "H1",
                     "page_number": 16,
@@ -89918,7 +89918,7 @@
                     ]
                 },
                 {
-                    "section_id": "839bf706-5acb-46f8-b777-daf06d341907",
+                    "section_id": "a30520c9-bda8-44db-b849-20806ef21dc1",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 17,
@@ -91480,7 +91480,7 @@
                     ]
                 },
                 {
-                    "section_id": "cba1c27d-b103-4b85-8c90-38f10597feea",
+                    "section_id": "9ed6c662-0138-4468-894e-192060d5d2a0",
                     "heading": "4. WAVE POWER ENERGY:",
                     "heading_level": "H1",
                     "page_number": 17,
@@ -92264,7 +92264,7 @@
                     ]
                 },
                 {
-                    "section_id": "b71bc012-3c78-4eb8-9548-946ceab1c670",
+                    "section_id": "eb9b67c9-cd08-4399-b5ab-5d912d33c4cd",
                     "heading": "1. Wave Generation: Ocean waves are generated by the wind as it blows across the",
                     "heading_level": "H1",
                     "page_number": 17,
@@ -93826,7 +93826,7 @@
                     ]
                 },
                 {
-                    "section_id": "a49e5940-a0ef-41dd-a9a4-4676c5b8401f",
+                    "section_id": "f5122116-1b66-497b-9178-3a3e71fb07b3",
                     "heading": "2. Wave Energy Conversion Devices: Various types of devices are designed to capture",
                     "heading_level": "H1",
                     "page_number": 17,
@@ -95388,7 +95388,7 @@
                     ]
                 },
                 {
-                    "section_id": "3d0f7b04-28c0-4b74-9340-d06082df333f",
+                    "section_id": "af6d7fea-642f-4715-ac1f-1cc8063796db",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 18,
@@ -96172,7 +96172,7 @@
                     ]
                 },
                 {
-                    "section_id": "6586008a-c0db-4b55-9bc9-6007fae511fa",
+                    "section_id": "411c16c4-af60-47cf-b1e1-e2a07b64ca72",
                     "heading": "3. Energy Conversion and Transmission: Regardless of specific device, the captured",
                     "heading_level": "H1",
                     "page_number": 18,
@@ -97734,7 +97734,7 @@
                     ]
                 },
                 {
-                    "section_id": "ad8d0a1f-c22c-48e4-8712-a3c531f51e94",
+                    "section_id": "dab54653-906b-4eea-9a37-cc7cd4bf8d37",
                     "heading": "4. Power Distribution: The generated electricity is then transmitted through cables to an",
                     "heading_level": "H1",
                     "page_number": 18,
@@ -98907,7 +98907,7 @@
                     ]
                 },
                 {
-                    "section_id": "53c88657-83c5-4a63-81bc-135c6e61d40e",
+                    "section_id": "8d2d7eed-9ade-4d3c-b793-f2f9d913f4a8",
                     "heading": "•  Disadvantages",
                     "heading_level": "H1",
                     "page_number": 18,
@@ -99691,7 +99691,7 @@
                     ]
                 },
                 {
-                    "section_id": "02509e6f-451f-48fd-b21a-a5d9a17dc0f2",
+                    "section_id": "4a8a690f-371f-43db-9cfa-bad741c45fb2",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -100475,7 +100475,7 @@
                     ]
                 },
                 {
-                    "section_id": "b4adf719-e756-4fe9-9bd2-30902da1fe1c",
+                    "section_id": "5023d8dc-cd66-4b1e-a73a-53fc39df58e6",
                     "heading": "5. BIO FUEL ENERGY:",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -102037,7 +102037,7 @@
                     ]
                 },
                 {
-                    "section_id": "2f432860-b045-4dd0-813b-05cf90d0fd7e",
+                    "section_id": "9389e189-ed79-4684-adf0-90776f9b11c6",
                     "heading": "1. Bioethanol: It is a type of alcohol made from fermenting sugars or starches found in",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -103599,7 +103599,7 @@
                     ]
                 },
                 {
-                    "section_id": "2edcf577-038a-4349-a057-6c634cc9bdfa",
+                    "section_id": "74d7ae8f-ba39-45ba-98ec-cc32822f62b2",
                     "heading": "2. Biodiesel: Biodiesel is made from vegetable oils, animal fats, or recycled cooking",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -104772,7 +104772,7 @@
                     ]
                 },
                 {
-                    "section_id": "4359dda6-329d-4e69-9617-04aefbf83915",
+                    "section_id": "a444603a-b184-4852-a42f-76a178918033",
                     "heading": "3. Biogas: Biogas is produced through anaerobic digestion of organic waste materials,",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -106334,7 +106334,7 @@
                     ]
                 },
                 {
-                    "section_id": "675387f3-280b-4711-b77f-a95a22ac8eea",
+                    "section_id": "4c859ae9-8035-44b7-8e85-f23597a1787b",
                     "heading": "4. Syngas (Synthetic Gas): Syngas is produced by gasification, a process that converts",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -107507,7 +107507,7 @@
                     ]
                 },
                 {
-                    "section_id": "7be7ab18-db97-40aa-8936-37e8167e3728",
+                    "section_id": "f642111f-9fd5-4a27-9c73-dc7c46e90a75",
                     "heading": "Biofuels offer several benefits:",
                     "heading_level": "H1",
                     "page_number": 19,
@@ -108291,7 +108291,7 @@
                     ]
                 },
                 {
-                    "section_id": "f66afbb1-6094-4714-986d-819d16846ada",
+                    "section_id": "f99743dd-bd41-4256-a0a7-0d44db228c5c",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 20,
@@ -109853,7 +109853,7 @@
                     ]
                 },
                 {
-                    "section_id": "949115d5-3591-4c81-a2fa-9a53670f1b14",
+                    "section_id": "be795e1b-d06b-48dc-95fe-9ee90ca1e909",
                     "heading": "Passive solar strategies are design principles and techniques used to optimize the",
                     "heading_level": "H1",
                     "page_number": 20,
@@ -111415,7 +111415,7 @@
                     ]
                 },
                 {
-                    "section_id": "419513f9-fb02-4410-bd10-d8ce15d0e08e",
+                    "section_id": "2817051d-3667-4480-8dc0-6fe333cf32c6",
                     "heading": "1. Building Orientation: Properly orienting a building is crucial to take advantage of the",
                     "heading_level": "H1",
                     "page_number": 20,
@@ -112977,7 +112977,7 @@
                     ]
                 },
                 {
-                    "section_id": "640d8757-bcc5-4587-885c-86c0bb4c3983",
+                    "section_id": "1053535e-74e9-47ef-9519-8c56efbb57ab",
                     "heading": "2. Solar Apertures: Designing windows, skylights, or other openings on the south side of",
                     "heading_level": "H1",
                     "page_number": 20,
@@ -114150,7 +114150,7 @@
                     ]
                 },
                 {
-                    "section_id": "f1ae4639-5138-4e70-8641-b3b12ccfba4f",
+                    "section_id": "65c5c3ee-755a-4ca0-b3b7-c12732c01fa4",
                     "heading": "3. Shading and Overhangs: Incorporating shading devices such as roof overhangs,",
                     "heading_level": "H1",
                     "page_number": 20,
@@ -115323,7 +115323,7 @@
                     ]
                 },
                 {
-                    "section_id": "c38e7319-5c97-4a3d-9465-7ff8217b8848",
+                    "section_id": "6125d9da-611c-42a0-b92b-cd9d2859b12d",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 21,
@@ -116107,7 +116107,7 @@
                     ]
                 },
                 {
-                    "section_id": "351df561-3825-4690-b97f-960700cf9692",
+                    "section_id": "ea6ba618-37d8-449d-9d90-bcaf1495b9a6",
                     "heading": "4. Thermal Mass: Utilizing materials with high thermal mass, such as concrete, brick, or",
                     "heading_level": "H1",
                     "page_number": 21,
@@ -117280,7 +117280,7 @@
                     ]
                 },
                 {
-                    "section_id": "d72cb009-fa9d-4a4b-b305-3af5ea5e0086",
+                    "section_id": "2622d059-e425-4b3f-bca2-099de2ac562c",
                     "heading": "5. Natural Ventilation: Designing the building to facilitate natural airflow can help",
                     "heading_level": "H1",
                     "page_number": 21,
@@ -118453,7 +118453,7 @@
                     ]
                 },
                 {
-                    "section_id": "c3a3dba1-6fc2-4f38-9c0c-59eb417d372c",
+                    "section_id": "8b682d9f-02a6-47a6-bd54-c89a6fb6b09a",
                     "heading": "6. Insulation and Air Sealing: Proper insulation and air sealing are essential to minimize",
                     "heading_level": "H1",
                     "page_number": 21,
@@ -119626,7 +119626,7 @@
                     ]
                 },
                 {
-                    "section_id": "d63ec026-cab3-4226-9a84-041595e4f9ef",
+                    "section_id": "b7a48e91-ecb2-4cd5-bca4-8c76c7b08b34",
                     "heading": "7. Passive Solar Heating Systems: Supplementing passive solar strategies with active solar",
                     "heading_level": "H1",
                     "page_number": 21,
@@ -121188,7 +121188,7 @@
                     ]
                 },
                 {
-                    "section_id": "2d73a7ba-e0d1-458d-a2db-359c37a08b85",
+                    "section_id": "ae228c54-ac5c-4ccf-af0d-7665ba51e394",
                     "heading": "PHOTOVOLTAICS:",
                     "heading_level": "H1",
                     "page_number": 21,
@@ -122750,7 +122750,7 @@
                     ]
                 },
                 {
-                    "section_id": "09ebd60f-ac39-47fa-bd88-ddae1168a264",
+                    "section_id": "c229008d-b7c1-4459-aaa7-c1aa7ad782a7",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -123534,7 +123534,7 @@
                     ]
                 },
                 {
-                    "section_id": "bf47510e-373d-4879-88c2-7c8803ef34bd",
+                    "section_id": "1ced4c57-bad7-4db0-b66a-537392caafa8",
                     "heading": "1. Photon Absorption: When sunlight (photons) hits the surface of the PV cell, it",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -124707,7 +124707,7 @@
                     ]
                 },
                 {
-                    "section_id": "42cf8c86-bbec-42e1-bf03-55f35af4cc09",
+                    "section_id": "2bb2d849-848e-4800-a2bc-9676b754c745",
                     "heading": "2. Generation of Electron-Hole Pairs: The energy from the absorbed photons excites",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -125880,7 +125880,7 @@
                     ]
                 },
                 {
-                    "section_id": "27d13673-d21b-4a1a-a8e0-712c07622d2b",
+                    "section_id": "62d28713-af86-43d2-acac-49639880fe61",
                     "heading": "3. Electron Flow: Due to internal structure of the cell, mobile electrons move towards",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -127053,7 +127053,7 @@
                     ]
                 },
                 {
-                    "section_id": "476ad878-6daa-4b0b-b31e-1e30a953a581",
+                    "section_id": "f2e8e413-a88e-4382-b88b-f28bda4803e3",
                     "heading": "4. Collection of Electrons: The electric field drives the free electrons towards the front",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -128226,7 +128226,7 @@
                     ]
                 },
                 {
-                    "section_id": "b449377e-b1dd-455a-bc42-da4bc824fccb",
+                    "section_id": "1ddabf5f-7a2b-4446-8a4c-8dc7263bb1bc",
                     "heading": "5. External Circuit: The collected electrons flow through an external circuit, such as",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -129788,7 +129788,7 @@
                     ]
                 },
                 {
-                    "section_id": "e91e70de-1a49-491b-8607-eb2650127b2e",
+                    "section_id": "54070946-cd5f-4865-a89b-6bb32a65b742",
                     "heading": "Types of Solar PV Generating System:",
                     "heading_level": "H1",
                     "page_number": 22,
@@ -131350,7 +131350,7 @@
                     ]
                 },
                 {
-                    "section_id": "bbeec61f-0db6-4c4b-a9c1-d887abada254",
+                    "section_id": "dc7c0c62-bcbe-42ff-a8ae-3db821a42012",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -132912,7 +132912,7 @@
                     ]
                 },
                 {
-                    "section_id": "a6fbb6e5-1daf-46b6-9fdd-677758208f1a",
+                    "section_id": "c7344716-ddb8-4103-a7bc-e78553f6dd26",
                     "heading": "1. Solar Panels: Photovoltaic (PV) panels are installed on your rooftop or on a suitable",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -134085,7 +134085,7 @@
                     ]
                 },
                 {
-                    "section_id": "39b45dda-4c02-4145-9d5c-fe0287224f69",
+                    "section_id": "f66a053a-f9a8-48c2-97a4-3dfd3dc9185e",
                     "heading": "2. Inverter: The DC electricity produced by the solar panels is sent to an inverter. The",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -134869,7 +134869,7 @@
                     ]
                 },
                 {
-                    "section_id": "acce95aa-768f-4855-8ca2-7495cf0a3006",
+                    "section_id": "5836589d-7a72-43b6-98f9-d49fb6064bc3",
                     "heading": "3. Power Consumption: The AC electricity produced by the inverter can be used to",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -135653,7 +135653,7 @@
                     ]
                 },
                 {
-                    "section_id": "0b4bff5e-49a6-4f2f-8467-6acbbf55d931",
+                    "section_id": "a3b5fba8-1ec9-417c-a23a-1082b7bc4391",
                     "heading": "4. Grid Interaction:",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -137215,7 +137215,7 @@
                     ]
                 },
                 {
-                    "section_id": "a95dafd7-f783-41c7-a8d7-e44da187eaa0",
+                    "section_id": "0fbf2a7c-1d6f-4be1-b034-aa9b3460cb30",
                     "heading": "5. Metering: A bidirectional meter is installed that measures both the electricity you",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -138388,7 +138388,7 @@
                     ]
                 },
                 {
-                    "section_id": "23a2b774-f5d2-412e-be11-c48bbd58a3c8",
+                    "section_id": "a4ec0f0a-fb65-4c43-9fe4-a0f398a8b09b",
                     "heading": "6. Electricity Billing: Your electricity bill is calculated based on the net difference",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -139561,7 +139561,7 @@
                     ]
                 },
                 {
-                    "section_id": "d020b5a8-82b2-44f7-8c07-03e29de99b97",
+                    "section_id": "d0e17d08-f762-4f3f-aa9d-335f137491c3",
                     "heading": "1. Cost Savings: On-grid solar systems allows to generate electricity, reducing electricity",
                     "heading_level": "H1",
                     "page_number": 23,
@@ -140345,7 +140345,7 @@
                     ]
                 },
                 {
-                    "section_id": "2e87d514-b828-439c-90e1-49a0efe2b733",
+                    "section_id": "443be8ea-b8eb-45c7-8657-bd2ac01cb543",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -141129,7 +141129,7 @@
                     ]
                 },
                 {
-                    "section_id": "e3334bba-65b3-4238-85c2-90d6c3ea9f01",
+                    "section_id": "06f5c394-e05a-483d-9d9a-220c706c606e",
                     "heading": "2. Net Metering: Many regions offer net metering, allowing you to sell excess electricity",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -142302,7 +142302,7 @@
                     ]
                 },
                 {
-                    "section_id": "85aba818-a075-440b-b36a-6f26a5a42a2a",
+                    "section_id": "d40704fb-69d0-4aa5-a2d0-2cc038054895",
                     "heading": "3. Low Maintenance: On-grid systems require less maintenance. Regular cleaning and",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -143086,7 +143086,7 @@
                     ]
                 },
                 {
-                    "section_id": "9645a31f-f81e-4583-b5af-c069413d4303",
+                    "section_id": "5700509b-3d4b-433e-865a-d8ddddca7932",
                     "heading": "4. Environmental Benefits: Solar energy is clean and renewable, producing no greenhouse",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -143870,7 +143870,7 @@
                     ]
                 },
                 {
-                    "section_id": "626ee165-4fab-49ad-bdaf-d90c75f7673e",
+                    "section_id": "233279cc-c727-4b33-ae38-4d73f2dedc77",
                     "heading": "5. Ease of Installation: On-grid systems are relatively straightforward to install, as they",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -144654,7 +144654,7 @@
                     ]
                 },
                 {
-                    "section_id": "426a4bc5-c3cc-4a04-af0b-0f26aaefbcc8",
+                    "section_id": "55961e3d-52ab-40c8-974f-8f91b65ed491",
                     "heading": "1. Grid Dependence: On-grid systems are connected to the utility grid. It rely on the grid",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -145438,7 +145438,7 @@
                     ]
                 },
                 {
-                    "section_id": "7dc29dc6-8272-46d4-b868-d84f3f472a96",
+                    "section_id": "0c240c1d-6a4e-4aea-943e-121219eeb74a",
                     "heading": "2. No Backup Power: Since on-grid systems lack energy storage (batteries), So no power",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -146222,7 +146222,7 @@
                     ]
                 },
                 {
-                    "section_id": "71c9ed3c-d67d-4606-a612-1154ead94702",
+                    "section_id": "e5fca80f-a4b4-453c-a121-f46f75675bb9",
                     "heading": "3. Initial Costs: While solar panel costs have decreased over time, the initial investment",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -147006,7 +147006,7 @@
                     ]
                 },
                 {
-                    "section_id": "d214cfde-6eef-43e3-9642-a3da57e0cdc5",
+                    "section_id": "df7918d2-d9c1-4ed9-b593-828a7ef1a2dc",
                     "heading": "6. Environmental Impact of Grid: The electricity grid itself might still rely on non-",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -147790,7 +147790,7 @@
                     ]
                 },
                 {
-                    "section_id": "d6aedabf-acfa-47a2-931b-32c766470813",
+                    "section_id": "7bc18f4e-2116-407a-8623-2b173bc1bd39",
                     "heading": "ii. Off Grid Solar Energy System:",
                     "heading_level": "H1",
                     "page_number": 24,
@@ -148574,7 +148574,7 @@
                     ]
                 },
                 {
-                    "section_id": "1e8cdcc9-35d2-4943-a454-f760c59a5e7b",
+                    "section_id": "85db49b3-8308-4edb-8910-2d0241c8cae1",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -149358,7 +149358,7 @@
                     ]
                 },
                 {
-                    "section_id": "f46180cd-f988-4056-9d6a-ccb4cb7f714f",
+                    "section_id": "8d747f6a-0b9f-4bf1-a949-ce5642b473bf",
                     "heading": "1. Solar Panels: The system starts with solar panels, which are installed on a suitable",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -150531,7 +150531,7 @@
                     ]
                 },
                 {
-                    "section_id": "b80fd8d9-94a0-4f01-8e1f-2cde05cea8cd",
+                    "section_id": "6f55e2f7-d3f5-40cd-872b-5f332c5c2ecf",
                     "heading": "2. Charge Controller: The DC electricity generated by the solar panels is then sent to a",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -151315,7 +151315,7 @@
                     ]
                 },
                 {
-                    "section_id": "9d441c70-108b-4b2c-a41c-beaeb01c897f",
+                    "section_id": "acee7ad9-46a5-4141-8bf1-6aa719861a77",
                     "heading": "3. Battery Bank: Energy generated by the solar panels is stored in a battery bank. These",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -152099,7 +152099,7 @@
                     ]
                 },
                 {
-                    "section_id": "76f74147-98fa-4b27-8ef5-17239e9b5098",
+                    "section_id": "dd36415a-46c1-499d-b229-1f297b90ae06",
                     "heading": "4. Inverter: Energy stored in batteries is in the form of DC electricity. Most household",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -153272,7 +153272,7 @@
                     ]
                 },
                 {
-                    "section_id": "8ca45748-b295-48f5-b417-ec5cb51010eb",
+                    "section_id": "4bd96396-6a1b-4d01-8f79-7d462ee5679f",
                     "heading": "5. AC Loads: The AC electricity produced by the inverter can now be used to power",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -154056,7 +154056,7 @@
                     ]
                 },
                 {
-                    "section_id": "38b83332-3d16-4d36-b94c-0673080ff377",
+                    "section_id": "2600c8b9-799c-49fd-9b9c-dc4a11b4d5f6",
                     "heading": "6. Backup Generator (Optional): In regions with limited sunlight or high energy",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -155229,7 +155229,7 @@
                     ]
                 },
                 {
-                    "section_id": "e2361275-9b25-49cb-b524-df0b4f297a65",
+                    "section_id": "879a378e-145f-4bc1-ad46-2a921df96947",
                     "heading": "1. Grid Independence: These systems provide complete independence from the utility",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -156013,7 +156013,7 @@
                     ]
                 },
                 {
-                    "section_id": "79a02510-f66e-43a3-8b4c-58fe684b0ed6",
+                    "section_id": "32b09f02-28fd-4195-bcec-0cc1c1dfe215",
                     "heading": "2. Energy Backup: With a battery bank for energy storage, off-grid systems can provide",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -156797,7 +156797,7 @@
                     ]
                 },
                 {
-                    "section_id": "63b21967-6d91-477c-ad27-fbf64501ebd6",
+                    "section_id": "e7c6ee25-9cf4-455e-81ce-dc3ee2fe2e18",
                     "heading": "3. Environmental Benefits: Off-grid systems use clean and renewable solar energy,",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -157581,7 +157581,7 @@
                     ]
                 },
                 {
-                    "section_id": "1a1763c3-7e3a-4fcf-bd4d-885313c5515b",
+                    "section_id": "52276e07-a039-4c14-bd2f-392c9f320e4b",
                     "heading": "1. Higher Initial Costs: Setting up an off-grid system involves purchasing solar panels,",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -158365,7 +158365,7 @@
                     ]
                 },
                 {
-                    "section_id": "e72ee3bf-4ca2-4374-96e4-ca8dc061d6a8",
+                    "section_id": "d869c739-ae81-421c-9de0-2e75c2f51bb2",
                     "heading": "2. Limited Energy Storage: Capacity of battery banks determines how much energy can",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -159538,7 +159538,7 @@
                     ]
                 },
                 {
-                    "section_id": "6b3f1122-ea01-49a0-99bb-d72ebb2538a1",
+                    "section_id": "56103f79-edad-4ffb-b097-18fcce3242f2",
                     "heading": "3. Maintenance: Batteries in off-grid systems require regular maintenance, including",
                     "heading_level": "H1",
                     "page_number": 25,
@@ -160322,7 +160322,7 @@
                     ]
                 },
                 {
-                    "section_id": "4b1cd17c-633b-4b11-8b9d-eb4e6ad2c4c6",
+                    "section_id": "0cfdf5f4-c105-435a-8cbd-3ffa75b6d0cc",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 26,
@@ -161106,7 +161106,7 @@
                     ]
                 },
                 {
-                    "section_id": "f40b031f-4617-4858-ba8a-664176f31f0b",
+                    "section_id": "9a482a53-079e-4141-a6ad-5d561a0f6cee",
                     "heading": "5. Space Requirements: To generate enough energy, you might need a larger number of",
                     "heading_level": "H1",
                     "page_number": 26,
@@ -161890,7 +161890,7 @@
                     ]
                 },
                 {
-                    "section_id": "543f8666-5d3b-4ab2-99fd-06e7da4dccdf",
+                    "section_id": "4a257911-8be4-41aa-b0a0-a8ff764f375c",
                     "heading": "6. Backup Generation (Optional): In some cases, an off-grid system might need backup",
                     "heading_level": "H1",
                     "page_number": 26,
@@ -162674,7 +162674,7 @@
                     ]
                 },
                 {
-                    "section_id": "100d9b00-e46d-47ed-8aed-65b9aa514388",
+                    "section_id": "ce59785b-8715-4488-aa2c-ef7603576b9a",
                     "heading": "RAIN WATER HARVESTING",
                     "heading_level": "H1",
                     "page_number": 26,
@@ -164236,7 +164236,7 @@
                     ]
                 },
                 {
-                    "section_id": "425ae1e7-3c65-49a8-8e7b-4c5a17951dc8",
+                    "section_id": "b578b9c7-edd3-49e6-992f-2e5d820889c0",
                     "heading": "Roof rainwater harvesting is a common and effective method of collecting",
                     "heading_level": "H1",
                     "page_number": 26,
@@ -165020,7 +165020,7 @@
                     ]
                 },
                 {
-                    "section_id": "513ff113-05bd-4f0a-99d8-0b5cf54093a0",
+                    "section_id": "94dbd8c2-a7cb-42da-8adc-438c6e9728dc",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -165804,7 +165804,7 @@
                     ]
                 },
                 {
-                    "section_id": "143447e5-928a-4390-8f5d-e5083dbea0d8",
+                    "section_id": "dcd67835-7c09-4dbc-beae-99899eeb0f82",
                     "heading": "1. Catchment Area: The first step is to identify the catchment area, which is the surface",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -167366,7 +167366,7 @@
                     ]
                 },
                 {
-                    "section_id": "07808b88-5791-4ad6-979f-cd8db23a279e",
+                    "section_id": "e973e06c-880b-4253-a510-3bd57c6ca89b",
                     "heading": "2. Conveyance System: Gutters and downspouts are installed along the edges of the",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -168539,7 +168539,7 @@
                     ]
                 },
                 {
-                    "section_id": "703e5a7c-cd69-4b78-b932-dc19b84d98c9",
+                    "section_id": "a352d773-9206-47c7-bea1-b23dac3f1f55",
                     "heading": "3. First-Flush Diverter (Optional): In some systems, a first-flush diverter is installed in",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -169323,7 +169323,7 @@
                     ]
                 },
                 {
-                    "section_id": "97eaa9e2-0c55-4b3a-bc87-55a1ecc97b9a",
+                    "section_id": "3b2bb2b2-4c73-4a29-80f6-4dd1610f2055",
                     "heading": "4. Filtration: A filtration mechanism, such as mesh screens or sediment filters, is usually",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -170885,7 +170885,7 @@
                     ]
                 },
                 {
-                    "section_id": "425deb48-8657-4293-bd07-c5cd4591f56d",
+                    "section_id": "bc7cb184-c3a4-48d0-841b-066d3dba0625",
                     "heading": "5. Storage Tanks: The filtered rainwater is collected in storage tanks or cisterns. These",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -172058,7 +172058,7 @@
                     ]
                 },
                 {
-                    "section_id": "4d6148fc-d53d-4bc0-a2de-37bdb2f78c32",
+                    "section_id": "3a5a1f18-aaf4-4a37-840b-b0137b69316c",
                     "heading": "Excess rainwater that cannot be stored is diverted away from the storage tanks and led",
                     "heading_level": "H1",
                     "page_number": 27,
@@ -172842,7 +172842,7 @@
                     ]
                 },
                 {
-                    "section_id": "0aeb9f2f-65f8-4066-8a3d-f17fbc85ae2b",
+                    "section_id": "ccc19c57-2662-4bf4-96ac-3d697afba168",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -173626,7 +173626,7 @@
                     ]
                 },
                 {
-                    "section_id": "325bde73-20b5-4ea6-82d0-c2c22e17d160",
+                    "section_id": "68fee9dd-b4ed-47f2-95ac-71493902f31f",
                     "heading": "7. Distribution System: When the stored rainwater is to be used, it can be pumped or",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -174799,7 +174799,7 @@
                     ]
                 },
                 {
-                    "section_id": "2f54bb36-2be1-4e46-96b8-d53c4616db32",
+                    "section_id": "1be3a435-3ba0-4de1-9503-e859ac8840c5",
                     "heading": "1. Conservation of Freshwater: Rainwater harvesting reduces the demand for traditional",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -175583,7 +175583,7 @@
                     ]
                 },
                 {
-                    "section_id": "bb342693-f00b-42d4-b283-eeec78d55801",
+                    "section_id": "ad32095f-16d3-4557-b9bf-0355005899e3",
                     "heading": "2. Self-Sufficiency: It promotes self-sufficiency in water supply, particularly in areas with",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -176367,7 +176367,7 @@
                     ]
                 },
                 {
-                    "section_id": "f23e5249-86ea-421d-8795-23a8e7b9d2a0",
+                    "section_id": "24f37fef-04c6-4973-8ea9-6879399c652c",
                     "heading": "3. Reduced Runoff and Flooding: Collecting rainwater reduces stormwater runoff, which",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -177151,7 +177151,7 @@
                     ]
                 },
                 {
-                    "section_id": "6da4eb25-ed53-4e9a-8f38-f9023c931798",
+                    "section_id": "31954cb4-4e9a-488d-b295-4c172659ab34",
                     "heading": "4. Cost Savings: Using harvested rainwater for non-potable purposes like irrigation or",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -177935,7 +177935,7 @@
                     ]
                 },
                 {
-                    "section_id": "104e28d8-bfc9-47af-bab3-9e017b373ab5",
+                    "section_id": "07fcbcd4-e207-4d38-bea5-06588c939f7c",
                     "heading": "5. Environmentally Friendly: Rainwater harvesting helps reduce the strain on local water",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -178719,7 +178719,7 @@
                     ]
                 },
                 {
-                    "section_id": "9df08b64-de17-4c0c-bb81-1955ac5c8776",
+                    "section_id": "366b62bc-8040-499b-9235-6b86420ad8d5",
                     "heading": "6. Groundwater Recharge: Properly managed rainwater harvesting systems can contribute",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -179503,7 +179503,7 @@
                     ]
                 },
                 {
-                    "section_id": "8c522594-4748-4ed6-a44e-7432ee3aed03",
+                    "section_id": "c0762bee-f91e-462e-8bd8-f6fbe86f68bb",
                     "heading": "1. Rainfall Patterns: The effectiveness of rainwater harvesting depends on the local",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -180287,7 +180287,7 @@
                     ]
                 },
                 {
-                    "section_id": "afd646d3-b80d-4504-b281-71fc039d906e",
+                    "section_id": "2ae8bab3-720d-42e7-8429-19873c05b110",
                     "heading": "2. Initial Costs: Installing rainwater harvesting systems can involve initial expenses for",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -181071,7 +181071,7 @@
                     ]
                 },
                 {
-                    "section_id": "e5f6c160-66ee-4349-999a-271f7ebee79a",
+                    "section_id": "3f3887ae-1ea7-4bc4-9c29-d31452c7752e",
                     "heading": "3. Maintenance: Regular maintenance is necessary to clean filters, check for leaks, and",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -181855,7 +181855,7 @@
                     ]
                 },
                 {
-                    "section_id": "482698a5-f10f-47c8-8cc4-7297be5eaa2b",
+                    "section_id": "7281cd4f-409a-45bc-a462-7e59d198a8cc",
                     "heading": "4. Water Quality: Proper filtration and treatment are essential to ensure the harvested",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -182639,7 +182639,7 @@
                     ]
                 },
                 {
-                    "section_id": "93b72374-b66e-49fe-a7a8-595360119f50",
+                    "section_id": "633a923c-b639-4ca1-bda6-fc0b51d92251",
                     "heading": "5. Regulations: Some regions have regulations governing the collection and use of",
                     "heading_level": "H1",
                     "page_number": 28,
@@ -183423,7 +183423,7 @@
                     ]
                 },
                 {
-                    "section_id": "e13fb72f-0d0e-4c82-8e35-0b06ea706256",
+                    "section_id": "68eb58f3-7c90-446c-bf49-168681c25c4e",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 29,
@@ -184207,7 +184207,7 @@
                     ]
                 },
                 {
-                    "section_id": "44f8113b-6f10-45b9-aee6-00cbb8dd828c",
+                    "section_id": "bf9433c8-91ff-407d-b339-7b70bb7b4718",
                     "heading": "Harvesting in regular rainfall areas:",
                     "heading_level": "H1",
                     "page_number": 29,
@@ -184991,7 +184991,7 @@
                     ]
                 },
                 {
-                    "section_id": "b6eef2bf-7750-48a6-9b1c-613e6a748ff3",
+                    "section_id": "6b964620-8606-429f-afca-49c05df6efe8",
                     "heading": "coastal regions, etc constant and regular rainfall can be usefully harvested and stored",
                     "heading_level": "H1",
                     "page_number": 29,
@@ -186553,7 +186553,7 @@
                     ]
                 },
                 {
-                    "section_id": "e4171d3e-1036-4266-b0d1-6168677961cb",
+                    "section_id": "afbd3364-3210-4357-8c82-1e033d785de4",
                     "heading": "Harvesting in limited rainfall areas:",
                     "heading_level": "H1",
                     "page_number": 29,
@@ -188115,7 +188115,7 @@
                     ]
                 },
                 {
-                    "section_id": "bb66fd7e-d6bc-455b-8aee-35163597d0a5",
+                    "section_id": "10d6e518-1827-4a91-ad77-d57224155dc2",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -189677,7 +189677,7 @@
                     ]
                 },
                 {
-                    "section_id": "3e2e52b6-ce3b-4ae1-b19f-2d3a493ef05c",
+                    "section_id": "6f4ac371-c7b1-4ff7-a04b-9e32e2e7056c",
                     "heading": "CLIMATE AND ENERGY:",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -190461,7 +190461,7 @@
                     ]
                 },
                 {
-                    "section_id": "37cf9244-b0ac-40ab-ae5a-4635a61a807c",
+                    "section_id": "7cb05721-9093-4e0e-b02e-01903d6df643",
                     "heading": "1. Fossil Fuels and Greenhouse Gases: Traditional energy sources like coal, oil, and",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -192023,7 +192023,7 @@
                     ]
                 },
                 {
-                    "section_id": "f05e9cbb-9234-4b3b-808f-8ba2b527940a",
+                    "section_id": "9582959d-b5a0-4b63-8d4e-786dcee56bb5",
                     "heading": "2. Renewable Energy and Lower Emissions: Renewable energy sources such as wind,",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -193196,7 +193196,7 @@
                     ]
                 },
                 {
-                    "section_id": "eb9076e1-7084-4f1f-bddf-241a22983b37",
+                    "section_id": "31157530-4dfd-4a2a-8709-3715bfdea3cb",
                     "heading": "3. Climate Impact on Energy: On the flip side, climate can affect energy production and",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -193980,7 +193980,7 @@
                     ]
                 },
                 {
-                    "section_id": "baad561f-c6d0-4dd2-b63c-bea97aa6f8fd",
+                    "section_id": "b4b2f1ce-a30e-459b-b2cf-4b867e4780c7",
                     "heading": "4. Energy Efficiency: Improving energy efficiency – that is, getting more services out of",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -195153,7 +195153,7 @@
                     ]
                 },
                 {
-                    "section_id": "20f21408-6c18-44af-9e7a-e758d0bcd3cb",
+                    "section_id": "fbec8282-9d2c-4040-b01b-c6bffe4ae655",
                     "heading": "5. Energy Policy and Climate Policy: Energy policy has significant implications for",
                     "heading_level": "H1",
                     "page_number": 30,
@@ -196326,7 +196326,7 @@
                     ]
                 },
                 {
-                    "section_id": "e62de221-ae80-45b6-89fa-b5f12936ddc0",
+                    "section_id": "90dd0a24-d0c8-4e42-a6b8-d2b83605af4f",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 31,
@@ -197110,7 +197110,7 @@
                     ]
                 },
                 {
-                    "section_id": "b50a36ae-0752-4105-98a4-11f4650e0384",
+                    "section_id": "442ca626-df37-4409-8660-5db96cf80dc6",
                     "heading": "MACRO AND MICRO CLIMATE:",
                     "heading_level": "H1",
                     "page_number": 31,
@@ -197894,7 +197894,7 @@
                     ]
                 },
                 {
-                    "section_id": "49948707-bc0c-47a6-a346-afd333f23505",
+                    "section_id": "fb9a05c8-e59b-4e4d-8556-aba6ea50b1ac",
                     "heading": "by the sun. In the built environment we are generally concerned with local climate",
                     "heading_level": "H1",
                     "page_number": 31,
@@ -199456,7 +199456,7 @@
                     ]
                 },
                 {
-                    "section_id": "e3ae79fd-4331-422d-ba60-a22ca9cb75f2",
+                    "section_id": "03460e99-d396-4ade-a4df-4e37e9b48ef1",
                     "heading": "Site and Micro Climate:",
                     "heading_level": "H1",
                     "page_number": 31,
@@ -201018,7 +201018,7 @@
                     ]
                 },
                 {
-                    "section_id": "9e108703-6e7c-4a22-8ce7-360393c7c33a",
+                    "section_id": "7a519ff5-dfc4-4e32-bcb3-7a4e180a93ef",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 32,
@@ -201802,7 +201802,7 @@
                     ]
                 },
                 {
-                    "section_id": "a244ddb3-462f-4c40-873a-cb955dec0207",
+                    "section_id": "2fd2348b-5356-4fc5-98cd-413bf6ded356",
                     "heading": "MACRO CLIMATE:",
                     "heading_level": "H1",
                     "page_number": 32,
@@ -202586,7 +202586,7 @@
                     ]
                 },
                 {
-                    "section_id": "f75c6e40-3852-4193-b7e7-5ddd5e75fba9",
+                    "section_id": "e8cbcf65-69ee-47ea-98a1-f3f3f1484870",
                     "heading": " General climatic data give an idea of the local climatic severity:",
                     "heading_level": "H1",
                     "page_number": 32,
@@ -203370,7 +203370,7 @@
                     ]
                 },
                 {
-                    "section_id": "0db21c45-6c02-4ac7-8ecb-a881a9845fd8",
+                    "section_id": "aa4f9c5a-d288-4cfe-8be5-44bf6db72b76",
                     "heading": " This metereological data gives a general impression of the climate at the site of a",
                     "heading_level": "H1",
                     "page_number": 32,
@@ -204543,7 +204543,7 @@
                     ]
                 },
                 {
-                    "section_id": "e7ad762b-cb45-409b-bb35-33928f5deb73",
+                    "section_id": "7995e63e-0c96-4e89-af0a-c8a682f288b4",
                     "heading": "Micro Climate",
                     "heading_level": "H1",
                     "page_number": 32,
@@ -206105,7 +206105,7 @@
                     ]
                 },
                 {
-                    "section_id": "f52bc45e-3cc4-4d12-a20b-524ad044d573",
+                    "section_id": "4f1ba000-9a55-4d1a-b203-ae0fc522ce32",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 33,
@@ -207667,7 +207667,7 @@
                     ]
                 },
                 {
-                    "section_id": "1cef0f1e-91ed-415e-bce2-adffee5370a1",
+                    "section_id": "bf18c382-1e6a-40df-ba08-216b07701080",
                     "heading": "IMPROVING MICRO CLIMATE THROUGH DESIGN",
                     "heading_level": "H1",
                     "page_number": 33,
@@ -208451,7 +208451,7 @@
                     ]
                 },
                 {
-                    "section_id": "87b8387c-08bc-4613-b89c-8f1293869f61",
+                    "section_id": "0f9b9014-f590-4602-aa29-6591e47f58e7",
                     "heading": "SOLAR ACCESS:",
                     "heading_level": "H1",
                     "page_number": 33,
@@ -209235,7 +209235,7 @@
                     ]
                 },
                 {
-                    "section_id": "c09c5389-c38d-4f4a-97cc-3e9dd28c3a07",
+                    "section_id": "88e85c23-42a4-46c4-9a08-ac11d04259bc",
                     "heading": "Wind Protection:",
                     "heading_level": "H1",
                     "page_number": 33,
@@ -210019,7 +210019,7 @@
                     ]
                 },
                 {
-                    "section_id": "956e98d2-6c2b-4360-9bfe-6af79c40b1a5",
+                    "section_id": "fc6c10f5-a7e2-4c09-b866-c80b8a17bbeb",
                     "heading": "FEATURES:",
                     "heading_level": "H1",
                     "page_number": 33,
@@ -210803,7 +210803,7 @@
                     ]
                 },
                 {
-                    "section_id": "e205cc19-b1d0-46db-9b84-067cf28dd523",
+                    "section_id": "6285a6b8-8950-4c5a-8f20-e0deaa8fced9",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 34,
@@ -211976,7 +211976,7 @@
                     ]
                 },
                 {
-                    "section_id": "bcb3d07e-899c-439d-9caf-1302faac0c72",
+                    "section_id": "280f02cf-4ae8-4276-9016-abe05e9b3d1e",
                     "heading": "Solar access:",
                     "heading_level": "H1",
                     "page_number": 34,
@@ -213149,7 +213149,7 @@
                     ]
                 },
                 {
-                    "section_id": "3ad6de05-6f50-4156-b97b-6c36d3bce8fd",
+                    "section_id": "feeb806d-2944-4cf6-b86e-b9b5b37bcce9",
                     "heading": "Wind control:",
                     "heading_level": "H1",
                     "page_number": 34,
@@ -213933,7 +213933,7 @@
                     ]
                 },
                 {
-                    "section_id": "e61663b9-ae84-4fa2-b604-da1fac96f623",
+                    "section_id": "fdf4a2fd-6142-4ea6-933c-8c0f0b6b7e67",
                     "heading": "Enhanced Micro climate and energy saving",
                     "heading_level": "H1",
                     "page_number": 34,
@@ -214717,7 +214717,7 @@
                     ]
                 },
                 {
-                    "section_id": "4388ce46-1cb0-4c18-bc3e-cccfb26bca0f",
+                    "section_id": "2e979a24-cbfa-4d6c-a6a5-933cf243c7d8",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -216279,7 +216279,7 @@
                     ]
                 },
                 {
-                    "section_id": "56e9516f-7377-43d6-84cb-175984f5ba19",
+                    "section_id": "83d7ac90-32d4-4142-a11e-5a232889f1ea",
                     "heading": "India is a vast and diverse country with varying macro and micro climates due to its",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -217452,7 +217452,7 @@
                     ]
                 },
                 {
-                    "section_id": "20ea9a8a-4851-431d-878c-48786a6a188e",
+                    "section_id": "e137c5ab-562f-452a-b384-033dff4df3c9",
                     "heading": "1. Tropical Climate (Macro): Large parts of India experience a tropical climate with high",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -218625,7 +218625,7 @@
                     ]
                 },
                 {
-                    "section_id": "5c7e791f-aa60-4068-b5ff-e154c15d0d9f",
+                    "section_id": "218b63bd-6fe3-414e-91a7-c4e8249f41d8",
                     "heading": "experiences a mountain climate. It includes various zones based on elevation, ranging from",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -219798,7 +219798,7 @@
                     ]
                 },
                 {
-                    "section_id": "55e48706-b7cf-45ef-8a4d-3d5599069cd4",
+                    "section_id": "8acbd545-10a9-4e21-a023-088031279618",
                     "heading": "3. Coastal Climate (Macro): Coastal regions, like those along the Arabian Sea and the Bay",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -220971,7 +220971,7 @@
                     ]
                 },
                 {
-                    "section_id": "afa2422c-3c51-43fb-aadc-4e1cb3856c57",
+                    "section_id": "b71beffa-28bc-45bc-aa2d-4dd7f630e91b",
                     "heading": "4. Semi-Arid and Arid Climate (Macro): Northwestern India, including parts of Rajasthan",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -221755,7 +221755,7 @@
                     ]
                 },
                 {
-                    "section_id": "96f3e05e-3e04-4db1-9fb9-c36ec29c9d95",
+                    "section_id": "3824ea73-d72e-4376-bd31-47a59713254c",
                     "heading": "1. Urban Heat Island (Micro): Major cities like Delhi and Mumbai often exhibit urban",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -222539,7 +222539,7 @@
                     ]
                 },
                 {
-                    "section_id": "39344bcf-ef26-4d3c-b821-8beabe1cf89b",
+                    "section_id": "a0addc10-ebd3-4d92-8b2a-9f8ede88b40b",
                     "heading": "2. Forest Microclimate (Micro): Within dense forests, there can be microclimates due to",
                     "heading_level": "H1",
                     "page_number": 35,
@@ -223712,7 +223712,7 @@
                     ]
                 },
                 {
-                    "section_id": "27cb7be7-f485-46b0-8b7c-356674a3597e",
+                    "section_id": "b787655a-d1ed-4998-b53d-7cf1f841ec74",
                     "heading": "Mirza Mahaboob Baig,",
                     "heading_level": "H1",
                     "page_number": 36,
@@ -224496,7 +224496,7 @@
                     ]
                 },
                 {
-                    "section_id": "5dd30723-65e5-4f1d-9069-c8194461fb7b",
+                    "section_id": "f4a4555b-4498-4948-beca-81c654ab152e",
                     "heading": "3. Mountain Valley Microclimate (Micro): In the Himalayan valleys, there can be",
                     "heading_level": "H1",
                     "page_number": 36,
@@ -225280,7 +225280,7 @@
                     ]
                 },
                 {
-                    "section_id": "9b78ca19-3104-420c-b2fb-da6b780faa3c",
+                    "section_id": "e6ee19d1-ddaf-4566-890a-8098f860c67b",
                     "heading": "levels can create microclimates. For instance, coastal villages might experience milder",
                     "heading_level": "H1",
                     "page_number": 36,
@@ -226064,7 +226064,7 @@
                     ]
                 },
                 {
-                    "section_id": "f3339af0-8d21-4af0-bcc9-b89845a99171",
+                    "section_id": "07300196-56be-4fdc-b364-3f0db86c3a1f",
                     "heading": "5. Rural Agricultural Microclimate (Micro): Rural areas with extensive agricultural",
                     "heading_level": "H1",
                     "page_number": 36,
@@ -227237,7 +227237,7 @@
                     ]
                 },
                 {
-                    "section_id": "b3b185fa-7e41-4b29-b334-dc7aefd1235b",
+                    "section_id": "dd0ec0b4-bc8a-44e8-831d-c9a700151747",
                     "heading": "6. Urban Green Spaces (Micro): Parks, gardens, and green spaces within cities can create",
                     "heading_level": "H1",
                     "page_number": 36,
@@ -228798,7 +228798,386 @@
                         0.03733435273170471
                     ]
                 }
-            ]
+            ],
+            "images": [
+                {
+                    "page": 2,
+                    "filename": "11fa8b6cd551.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\11fa8b6cd551_thumb.png",
+                        "processed": "static\\images\\processed\\11fa8b6cd551_processed.png",
+                        "original": "static\\images\\11fa8b6cd551.png"
+                    },
+                    "width": 698,
+                    "height": 714,
+                    "format": "png",
+                    "size_kb": 79
+                },
+                {
+                    "page": 4,
+                    "filename": "442cc4b26196.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\442cc4b26196_thumb.jpeg",
+                        "processed": "static\\images\\processed\\442cc4b26196_processed.jpeg",
+                        "original": "static\\images\\442cc4b26196.jpeg"
+                    },
+                    "width": 507,
+                    "height": 493,
+                    "format": "jpeg",
+                    "size_kb": 51
+                },
+                {
+                    "page": 4,
+                    "filename": "fa9db4b5ccae.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\fa9db4b5ccae_thumb.jpeg",
+                        "processed": "static\\images\\processed\\fa9db4b5ccae_processed.jpeg",
+                        "original": "static\\images\\fa9db4b5ccae.jpeg"
+                    },
+                    "width": 643,
+                    "height": 362,
+                    "format": "jpeg",
+                    "size_kb": 46
+                },
+                {
+                    "page": 5,
+                    "filename": "fdb9ae6a4688.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\fdb9ae6a4688_thumb.png",
+                        "processed": "static\\images\\processed\\fdb9ae6a4688_processed.png",
+                        "original": "static\\images\\fdb9ae6a4688.png"
+                    },
+                    "width": 1307,
+                    "height": 585,
+                    "format": "png",
+                    "size_kb": 75
+                },
+                {
+                    "page": 5,
+                    "filename": "846fc7b4132a.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\846fc7b4132a_thumb.jpeg",
+                        "processed": "static\\images\\processed\\846fc7b4132a_processed.jpeg",
+                        "original": "static\\images\\846fc7b4132a.jpeg"
+                    },
+                    "width": 1138,
+                    "height": 731,
+                    "format": "jpeg",
+                    "size_kb": 110
+                },
+                {
+                    "page": 7,
+                    "filename": "7ddae2f88e3e.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\7ddae2f88e3e_thumb.png",
+                        "processed": "static\\images\\processed\\7ddae2f88e3e_processed.png",
+                        "original": "static\\images\\7ddae2f88e3e.png"
+                    },
+                    "width": 559,
+                    "height": 187,
+                    "format": "png",
+                    "size_kb": 10
+                },
+                {
+                    "page": 8,
+                    "filename": "01bc78a446fe.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\01bc78a446fe_thumb.png",
+                        "processed": "static\\images\\processed\\01bc78a446fe_processed.png",
+                        "original": "static\\images\\01bc78a446fe.png"
+                    },
+                    "width": 500,
+                    "height": 368,
+                    "format": "png",
+                    "size_kb": 46
+                },
+                {
+                    "page": 8,
+                    "filename": "bc7be6afd871.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\bc7be6afd871_thumb.jpeg",
+                        "processed": "static\\images\\processed\\bc7be6afd871_processed.jpeg",
+                        "original": "static\\images\\bc7be6afd871.jpeg"
+                    },
+                    "width": 449,
+                    "height": 380,
+                    "format": "jpeg",
+                    "size_kb": 19
+                },
+                {
+                    "page": 9,
+                    "filename": "309c6b574bab.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\309c6b574bab_thumb.jpeg",
+                        "processed": "static\\images\\processed\\309c6b574bab_processed.jpeg",
+                        "original": "static\\images\\309c6b574bab.jpeg"
+                    },
+                    "width": 667,
+                    "height": 631,
+                    "format": "jpeg",
+                    "size_kb": 55
+                },
+                {
+                    "page": 9,
+                    "filename": "49e09542544d.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\49e09542544d_thumb.jpeg",
+                        "processed": "static\\images\\processed\\49e09542544d_processed.jpeg",
+                        "original": "static\\images\\49e09542544d.jpeg"
+                    },
+                    "width": 672,
+                    "height": 583,
+                    "format": "jpeg",
+                    "size_kb": 48
+                },
+                {
+                    "page": 10,
+                    "filename": "a79d8af4a9f0.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\a79d8af4a9f0_thumb.jpeg",
+                        "processed": "static\\images\\processed\\a79d8af4a9f0_processed.jpeg",
+                        "original": "static\\images\\a79d8af4a9f0.jpeg"
+                    },
+                    "width": 578,
+                    "height": 364,
+                    "format": "jpeg",
+                    "size_kb": 26
+                },
+                {
+                    "page": 11,
+                    "filename": "364968c1d90e.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\364968c1d90e_thumb.jpeg",
+                        "processed": "static\\images\\processed\\364968c1d90e_processed.jpeg",
+                        "original": "static\\images\\364968c1d90e.jpeg"
+                    },
+                    "width": 678,
+                    "height": 718,
+                    "format": "jpeg",
+                    "size_kb": 22
+                },
+                {
+                    "page": 11,
+                    "filename": "a9888619f324.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\a9888619f324_thumb.jpeg",
+                        "processed": "static\\images\\processed\\a9888619f324_processed.jpeg",
+                        "original": "static\\images\\a9888619f324.jpeg"
+                    },
+                    "width": 194,
+                    "height": 259,
+                    "format": "jpeg",
+                    "size_kb": 7
+                },
+                {
+                    "page": 13,
+                    "filename": "d33addc7fa6b.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\d33addc7fa6b_thumb.jpeg",
+                        "processed": "static\\images\\processed\\d33addc7fa6b_processed.jpeg",
+                        "original": "static\\images\\d33addc7fa6b.jpeg"
+                    },
+                    "width": 777,
+                    "height": 379,
+                    "format": "jpeg",
+                    "size_kb": 31
+                },
+                {
+                    "page": 15,
+                    "filename": "e63670dd7786.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\e63670dd7786_thumb.png",
+                        "processed": "static\\images\\processed\\e63670dd7786_processed.png",
+                        "original": "static\\images\\e63670dd7786.png"
+                    },
+                    "width": 600,
+                    "height": 544,
+                    "format": "png",
+                    "size_kb": 43
+                },
+                {
+                    "page": 15,
+                    "filename": "04cf6bb70310.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\04cf6bb70310_thumb.jpeg",
+                        "processed": "static\\images\\processed\\04cf6bb70310_processed.jpeg",
+                        "original": "static\\images\\04cf6bb70310.jpeg"
+                    },
+                    "width": 631,
+                    "height": 461,
+                    "format": "jpeg",
+                    "size_kb": 21
+                },
+                {
+                    "page": 15,
+                    "filename": "b73faa942cd6.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\b73faa942cd6_thumb.jpeg",
+                        "processed": "static\\images\\processed\\b73faa942cd6_processed.jpeg",
+                        "original": "static\\images\\b73faa942cd6.jpeg"
+                    },
+                    "width": 987,
+                    "height": 534,
+                    "format": "jpeg",
+                    "size_kb": 72
+                },
+                {
+                    "page": 15,
+                    "filename": "13148c42b1ca.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\13148c42b1ca_thumb.jpeg",
+                        "processed": "static\\images\\processed\\13148c42b1ca_processed.jpeg",
+                        "original": "static\\images\\13148c42b1ca.jpeg"
+                    },
+                    "width": 537,
+                    "height": 580,
+                    "format": "jpeg",
+                    "size_kb": 43
+                },
+                {
+                    "page": 18,
+                    "filename": "4a45a3c6f979.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\4a45a3c6f979_thumb.jpeg",
+                        "processed": "static\\images\\processed\\4a45a3c6f979_processed.jpeg",
+                        "original": "static\\images\\4a45a3c6f979.jpeg"
+                    },
+                    "width": 685,
+                    "height": 468,
+                    "format": "jpeg",
+                    "size_kb": 43
+                },
+                {
+                    "page": 19,
+                    "filename": "5f897f44fc4a.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\5f897f44fc4a_thumb.jpeg",
+                        "processed": "static\\images\\processed\\5f897f44fc4a_processed.jpeg",
+                        "original": "static\\images\\5f897f44fc4a.jpeg"
+                    },
+                    "width": 276,
+                    "height": 183,
+                    "format": "jpeg",
+                    "size_kb": 12
+                },
+                {
+                    "page": 19,
+                    "filename": "c22cd1dc583a.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\c22cd1dc583a_thumb.jpeg",
+                        "processed": "static\\images\\processed\\c22cd1dc583a_processed.jpeg",
+                        "original": "static\\images\\c22cd1dc583a.jpeg"
+                    },
+                    "width": 305,
+                    "height": 165,
+                    "format": "jpeg",
+                    "size_kb": 9
+                },
+                {
+                    "page": 21,
+                    "filename": "705640212b16.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\705640212b16_thumb.jpeg",
+                        "processed": "static\\images\\processed\\705640212b16_processed.jpeg",
+                        "original": "static\\images\\705640212b16.jpeg"
+                    },
+                    "width": 685,
+                    "height": 472,
+                    "format": "jpeg",
+                    "size_kb": 31
+                },
+                {
+                    "page": 22,
+                    "filename": "fb6ca1d10a09.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\fb6ca1d10a09_thumb.png",
+                        "processed": "static\\images\\processed\\fb6ca1d10a09_processed.png",
+                        "original": "static\\images\\fb6ca1d10a09.png"
+                    },
+                    "width": 596,
+                    "height": 300,
+                    "format": "png",
+                    "size_kb": 39
+                },
+                {
+                    "page": 24,
+                    "filename": "5dbca5224114.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\5dbca5224114_thumb.png",
+                        "processed": "static\\images\\processed\\5dbca5224114_processed.png",
+                        "original": "static\\images\\5dbca5224114.png"
+                    },
+                    "width": 596,
+                    "height": 300,
+                    "format": "png",
+                    "size_kb": 36
+                },
+                {
+                    "page": 26,
+                    "filename": "843b251eb13d.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\843b251eb13d_thumb.jpeg",
+                        "processed": "static\\images\\processed\\843b251eb13d_processed.jpeg",
+                        "original": "static\\images\\843b251eb13d.jpeg"
+                    },
+                    "width": 1096,
+                    "height": 455,
+                    "format": "jpeg",
+                    "size_kb": 69
+                },
+                {
+                    "page": 27,
+                    "filename": "940419394e0c.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\940419394e0c_thumb.jpeg",
+                        "processed": "static\\images\\processed\\940419394e0c_processed.jpeg",
+                        "original": "static\\images\\940419394e0c.jpeg"
+                    },
+                    "width": 612,
+                    "height": 415,
+                    "format": "jpeg",
+                    "size_kb": 36
+                },
+                {
+                    "page": 31,
+                    "filename": "2cca87a92158.jpeg",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\2cca87a92158_thumb.jpeg",
+                        "processed": "static\\images\\processed\\2cca87a92158_processed.jpeg",
+                        "original": "static\\images\\2cca87a92158.jpeg"
+                    },
+                    "width": 1608,
+                    "height": 911,
+                    "format": "jpeg",
+                    "size_kb": 145
+                },
+                {
+                    "page": 34,
+                    "filename": "13fee8c8616d.png",
+                    "path": {
+                        "thumbnail": "static\\images\\thumbnails\\13fee8c8616d_thumb.png",
+                        "processed": "static\\images\\processed\\13fee8c8616d_processed.png",
+                        "original": "static\\images\\13fee8c8616d.png"
+                    },
+                    "width": 1024,
+                    "height": 289,
+                    "format": "png",
+                    "size_kb": 83
+                }
+            ],
+            "image_statistics": {
+                "total_count": 28,
+                "total_size_mb": 1.2763671875,
+                "by_format": {
+                    "png": 8,
+                    "jpeg": 20
+                },
+                "size_distribution": {
+                    "small": 26,
+                    "medium": 2,
+                    "large": 0
+                }
+            }
         }
     ]
 }

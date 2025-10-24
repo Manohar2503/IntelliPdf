@@ -27,6 +27,7 @@ OUTPUT_DIR = Path("output")
 from src.extract import PDFExtractor       # PDF section extractor
 from src.ranker import EmbeddingGenerator  # Embedding generator
 from src.chatbot import get_chatbot_response, ChatbotResponse
+from src.image_extractor import PDFImageExtractor  # Image extractor
 
 
 # --------------------------
@@ -48,6 +49,7 @@ def extract_snippets(section_text, max_snippets=3):
 def process_pdfs(pdf_paths, output_file):
     pdf_extractor = PDFExtractor()
     embed_gen = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
+    image_extractor = PDFImageExtractor(output_dir="static/images")
     
     output_path = OUTPUT_DIR / output_file
     all_docs_data = []
@@ -80,11 +82,17 @@ def process_pdfs(pdf_paths, output_file):
             sections = []
 
         doc_id = str(uuid.uuid4())
+        # Extract images
+        images = image_extractor.extract_images(str(pdf_path), min_size_kb=5)
+        image_stats = image_extractor.get_image_statistics(images)
+        
         doc_data = {
             "doc_id": doc_id,
             "file_path": str(pdf_path),
             "title": os.path.splitext(filename)[0],
-            "sections": []
+            "sections": [],
+            "images": images,
+            "image_statistics": image_stats
         }
 
         if sections:

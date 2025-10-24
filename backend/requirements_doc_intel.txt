@@ -6,3 +6,14 @@ google-cloud-texttospeech
 python-dotenv
 protobuf
 sarvamai
+scikit-learn
+numpy
+sentence-transformers
+nltk
+transformers
+torch
+Pillow
+PyMuPDF
+pytesseract
+opencv-python-headless
+tensorflow

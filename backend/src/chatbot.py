@@ -6,14 +6,22 @@ import os
 import json
 import numpy as np
 import google.generativeai as genai
+from dotenv import load_dotenv
 from src.summarizer import DocumentSummarizer
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize summarizer
 doc_summarizer = DocumentSummarizer()
 
-# IMPORTANT: make sure GEMINI_API_KEY is set in env or .env (genai.configure will still work)
+# IMPORTANT: make sure GEMINI_API_KEY is set in env or .env
 api_key = os.getenv("GEMINI_API_KEY")
-# print(f"Debug - API Key {'is set' if api_key else 'is NOT set'}")
+if not api_key:
+    print("WARNING: GEMINI_API_KEY is not set")
+    raise ValueError("GEMINI_API_KEY environment variable is not set. Please set it in .env file or environment.")
+
+print(f"Debug - GEMINI_API_KEY: {api_key[:10] + '...' if api_key else 'NOT SET'}")
 genai.configure(api_key=api_key)
 
 # Local embedding helper (your project already has this class in src.ranker)
@@ -23,10 +31,20 @@ try:
 except Exception:
     embedder = None
 
+class ImageReference(BaseModel):
+    filename: str
+    page: int
+    path: str
+    caption: Optional[str] = None
+    relevance_score: float = 0.0
+    ocr_text: Optional[str] = None
+    ai_labels: Optional[List[Dict[str, float]]] = None
+
 class ChatbotResponse(BaseModel):
     response: str
     sources: List[Dict] = []
     is_summary: bool = False
+    relevant_images: List[ImageReference] = []
 
 def get_initial_summary() -> ChatbotResponse:
     """
@@ -130,10 +148,11 @@ def _keyword_fallback_search(query: str, docs: List[Dict], top_k: int = 3):
     candidates_sorted = sorted(candidates, key=lambda x: x["score"], reverse=True)
     return candidates_sorted[:top_k]
 
-def find_relevant_sections(query: str, top_k: int = 3, min_score: float = 0.2):
+def find_relevant_sections_and_images(query: str, top_k: int = 3, min_score: float = 0.2):
     """
-    Returns top_k relevant sections using stored embeddings if available.
-    Each returned item includes title, section_heading, page_number, top_snippet, score.
+    Returns top_k relevant sections and related images using stored embeddings.
+    Each returned item includes title, section_heading, page_number, top_snippet, score,
+    and any images found in those sections.
     """
     docs = _load_current_docs()
     if not docs:
@@ -164,13 +183,37 @@ def find_relevant_sections(query: str, top_k: int = 3, min_score: float = 0.2):
                     if not sec_emb:
                         continue
                     score = _cosine_similarity(query_emb, sec_emb)
+                    # Find images from this page/section
+                    section_images = []
+                    for img in doc.get("images", []):
+                        if img["page"] == sec.get("page_number"):
+                            # If image has OCR text, also check relevance using that
+                            img_score = score  # Base score from section relevance
+                            if img.get("ocr_text"):
+                                try:
+                                    img_emb = embedder.embed_texts([img["ocr_text"]])[0]
+                                    img_score = max(score, float(_cosine_similarity(query_emb, img_emb)))
+                                except Exception:
+                                    pass
+                            
+                            if img_score >= min_score:
+                                section_images.append({
+                                    "filename": img["filename"],
+                                    "page": img["page"],
+                                    "path": img["path"],
+                                    "relevance_score": img_score,
+                                    "ocr_text": img.get("ocr_text"),
+                                    "ai_labels": img.get("ai_labels")
+                                })
+                    
                     candidates.append({
                         "doc_id": doc.get("doc_id"),
                         "title": doc.get("title"),
                         "section_heading": sec.get("heading"),
                         "page_number": sec.get("page_number"),
                         "top_snippet": sec.get("snippets", [sec.get("text", "")])[0] if sec.get("snippets") else sec.get("text", ""),
-                        "score": float(score)
+                        "score": float(score),
+                        "images": section_images
                     })
 
             candidates_sorted = sorted(candidates, key=lambda x: x["score"], reverse=True)
@@ -229,12 +272,44 @@ def generate_answer_with_gemini(query: str, context: str) -> tuple[Optional[str]
             )
         )
         print("Debug - Gemini API call successful")
-        # Some SDKs return .text, some return .response. Your earlier code used .text
-        return (getattr(response, "text", None) or (response.response.text() if hasattr(response, "response") else None), None)
+
+        # Enhanced response handling
+        if response is None:
+            print("Debug - Gemini returned None response")
+            return None, "Gemini API returned no response"
+
+        # Try different ways to get the text content
+        answer_text = None
+        
+        # Method 1: Direct text attribute
+        if hasattr(response, "text"):
+            answer_text = response.text
+        
+        # Method 2: Response object text method
+        elif hasattr(response, "response"):
+            try:
+                answer_text = response.response.text()
+            except:
+                pass
+
+        # Method 3: Parts extraction (some versions return parts)
+        elif hasattr(response, "parts"):
+            try:
+                answer_text = " ".join(part.text for part in response.parts)
+            except:
+                pass
+
+        if answer_text:
+            print("Debug - Successfully extracted answer text")
+            return answer_text, None
+        else:
+            print("Debug - Could not extract text from response")
+            return None, "Could not extract text from Gemini response"
+
     except Exception as e:
         error_message = str(e)
         print("Gemini generation error:", error_message)
-        return (None, error_message)
+        return None, error_message
 
 # -------------------------
 # Public entry point
@@ -242,42 +317,118 @@ def generate_answer_with_gemini(query: str, context: str) -> tuple[Optional[str]
 def get_chatbot_response(query: str, top_k: int = 3) -> ChatbotResponse:
     """
     Main function the FastAPI endpoint should call.
-    - finds top sections for query
+    - finds top sections and images for query
     - calls Gemini with the chosen context
-    - returns ChatbotResponse(response, sources)
+    - returns ChatbotResponse with text and relevant images
     """
     print("\n=== Processing Chatbot Query ===")
     print(f"Query: {query}")
     
-    # Load and verify documents
-    docs = _load_current_docs()
-    print(f"Found {len(docs)} documents in current_doc.json")
-    for doc in docs:
-        print(f"Document: {doc.get('name', 'unnamed')} - {len(doc.get('sections', []))} sections")
+    if not query or not isinstance(query, str):
+        print("Invalid query:", query)
+        return ChatbotResponse(
+            response="Invalid query. Please provide a valid question.",
+            sources=[],
+            relevant_images=[]
+        )
     
-    sections = find_relevant_sections(query, top_k=top_k)
-    print(f"Debug - Found {len(sections)} relevant sections")
-    if not sections:
-        return ChatbotResponse(response="I couldn't find any relevant information in the document.", sources=[])
-
-    print(f"\nFound {len(sections)} relevant sections:")
-    for section in sections:
-        print(f"- {section.get('title')} | {section.get('section_heading')} | Score: {section.get('score')}")
+    try:
+        # Load and verify documents
+        docs = _load_current_docs()
+        print(f"Found {len(docs)} documents in current_doc.json")
+        
+        if not docs:
+            print("No documents found in current_doc.json")
+            return ChatbotResponse(
+                response="No documents are loaded. Please upload a document first.",
+                sources=[],
+                relevant_images=[]
+            )
+            
+        for doc in docs:
+            print(f"Document: {doc.get('name', 'unnamed')} - {len(doc.get('sections', []))} sections")
+    except Exception as e:
+        print(f"Error loading documents: {str(e)}")
+        return ChatbotResponse(
+            response="Error loading documents. Please try again.",
+            sources=[],
+            relevant_images=[]
+        )
     
-    context = build_context_from_sections(sections)
-    print(f"\nBuilt context with {len(context)} characters")
+    try:
+        sections = find_relevant_sections_and_images(query, top_k=top_k)
+        print(f"Debug - Found {len(sections)} relevant sections")
+        
+        if not sections:
+            return ChatbotResponse(
+                response="I couldn't find any relevant information in the document.",
+                sources=[],
+                relevant_images=[]
+            )
+
+        # Collect relevant images from sections
+        relevant_images = []
+        for section in sections:
+            for img in section.get("images", []):
+                try:
+                    # Handle path being either a string or a dict with 'thumbnail' key
+                    img_path = img["path"]["thumbnail"] if isinstance(img["path"], dict) else img["path"]
+                    # Ensure the path starts with /static/
+                    if not img_path.startswith('/static/'):
+                        img_path = f'/static/images/{os.path.basename(img_path)}'
+                    relevant_images.append(ImageReference(
+                        filename=img["filename"],
+                        page=img["page"],
+                        path=img_path,
+                        relevance_score=img["relevance_score"],
+                        ocr_text=img.get("ocr_text"),
+                        ai_labels=img.get("ai_labels"),
+                        caption=f"Image from page {img['page']}" + (f" - {img.get('ocr_text')[:100]}..." if img.get('ocr_text') else "")
+                    ))
+                except Exception as e:
+                    print(f"Error processing image: {str(e)}")
+                    continue
+
+        print(f"\nFound {len(sections)} relevant sections:")
+        for section in sections:
+            print(f"- {section.get('title')} | {section.get('section_heading')} | Score: {section.get('score')}")
+        
+        context = build_context_from_sections(sections)
+        print(f"\nBuilt context with {len(context)} characters")
+        
+        print("\nGenerating answer with Gemini...")
+        answer, error_message = generate_answer_with_gemini(query, context)
+        if answer is None:
+            # Gemini failed — return an informative message with sources for debugging
+            response_text = f"Sorry — I couldn't get an answer from Gemini right now. Error: {error_message}" if error_message else "Sorry — I couldn't get an answer from Gemini right now."
+            return ChatbotResponse(response=response_text, sources=sections)
+
+        # Remove any heavy objects (like full embeddings) from sources before returning
+        cleaned_sources = []
+        for s in sections:
+            cleaned = {k: v for k, v in s.items() if k != "embedding"}
+            cleaned_sources.append(cleaned)
+
+        # Sort images by relevance score and take top 3
+        sorted_images = sorted(relevant_images, key=lambda x: x.relevance_score, reverse=True)[:3]
+    except Exception as e:
+        print(f"Error processing query: {str(e)}")
+        return ChatbotResponse(
+            response=f"An error occurred while processing your query: {str(e)}",
+            sources=[],
+            relevant_images=[]
+        )
     
-    print("\nGenerating answer with Gemini...")
-    answer, error_message = generate_answer_with_gemini(query, context)
-    if answer is None:
-        # Gemini failed — return an informative message with sources for debugging
-        response_text = f"Sorry — I couldn't get an answer from Gemini right now. Error: {error_message}" if error_message else "Sorry — I couldn't get an answer from Gemini right now."
-        return ChatbotResponse(response=response_text, sources=sections)
+    # Final response assembly
+    if not answer:
+        return ChatbotResponse(
+            response="I apologize, but I couldn't generate a proper response at this time. Please try again.",
+            sources=cleaned_sources,
+            relevant_images=sorted_images
+        )
 
-    # Remove any heavy objects (like full embeddings) from sources before returning
-    cleaned_sources = []
-    for s in sections:
-        cleaned = {k: v for k, v in s.items() if k != "embedding"}
-        cleaned_sources.append(cleaned)
-
-    return ChatbotResponse(response=answer.strip(), sources=cleaned_sources)
+    return ChatbotResponse(
+        response=answer.strip(), 
+        sources=cleaned_sources, 
+        relevant_images=sorted_images
+    )

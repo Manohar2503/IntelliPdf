@@ -47,6 +47,29 @@ class ChatbotQuery(BaseModel):
 # ----------------------------
 app = FastAPI(title="PDF Insight Nexus")
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files directory with the correct absolute path
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+print(f"Serving static files from: {static_dir}")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Initialize summarizer
 summarizer = DocumentSummarizer()
 

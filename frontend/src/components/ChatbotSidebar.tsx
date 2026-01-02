@@ -20,6 +20,14 @@ export function ChatbotSidebar() {
     images?: Image[];
   }
 
+  // Backend URL configuration
+  const BACKEND_URL = 'http://localhost:8080';
+  const getImageUrl = (path: string) => {
+    if (path.startsWith('http')) return path;
+    if (!path.startsWith('/')) return `${BACKEND_URL}/${path}`;
+    return `${BACKEND_URL}${path}`;
+  };
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -144,9 +152,19 @@ export function ChatbotSidebar() {
                   {msg.images.map((image, imgIndex) => (
                     <div key={imgIndex} className="relative">
                       <img
-                        src={image.path.startsWith('http') ? image.path : `http://localhost:8080${image.path}`}
+                        src={getImageUrl(image.path)}
                         alt={image.caption || `Image from page ${image.page}`}
-                        className="rounded-md max-w-full h-auto cursor-pointer hover:opacity-90"
+                        className="rounded-md max-w-full h-auto cursor-pointer hover:opacity-90 border border-border"
+                        onError={(e) => {
+                          const imgElement = e.target as HTMLImageElement;
+                          console.error('Image failed to load:', imgElement.src);
+                          // Try loading without thumbnail
+                          if (imgElement.src.includes('_thumb')) {
+                            const newSrc = imgElement.src.replace('_thumb.', '.');
+                            console.log('Trying original image:', newSrc);
+                            imgElement.src = newSrc;
+                          }
+                        }}
                         onClick={() => {
                           if (setSelection) {
                             setSelection({ text: '', page: image.page, rect: null });

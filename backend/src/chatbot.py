@@ -372,10 +372,62 @@ def get_chatbot_response(query: str, top_k: int = 3) -> ChatbotResponse:
             for img in section.get("images", []):
                 try:
                     # Handle path being either a string or a dict with 'thumbnail' key
-                    img_path = img["path"]["thumbnail"] if isinstance(img["path"], dict) else img["path"]
-                    # Ensure the path starts with /static/
-                    if not img_path.startswith('/static/'):
-                        img_path = f'/static/images/{os.path.basename(img_path)}'
+                    # Get the base filename and ensure it exists in static/images
+                    base_filename = os.path.basename(original_path)
+                    extension = os.path.splitext(base_filename)[1]
+                    
+                    # Generate thumbnail name
+                    thumb_filename = f"{os.path.splitext(base_filename)[0]}_thumb{extension}"
+                    
+                    # Ensure directories exist
+                    static_dir = os.path.join(_project_root(), "static")
+                    images_dir = os.path.join(static_dir, "images")
+                    thumbnails_dir = os.path.join(images_dir, "thumbnails")
+                    
+                    os.makedirs(static_dir, exist_ok=True)
+                    os.makedirs(images_dir, exist_ok=True)
+                    os.makedirs(thumbnails_dir, exist_ok=True)
+                    
+                    # Full path to the original and thumbnail
+                    original_full_path = os.path.join(images_dir, base_filename)
+                    thumb_full_path = os.path.join(thumbnails_dir, thumb_filename)
+                    
+                    print(f"Original image path: {original_full_path}")
+                    print(f"Thumbnail path: {thumb_full_path}")
+                    
+                    # If thumbnail doesn't exist, try to generate it
+                    if not os.path.exists(thumb_full_path) and os.path.exists(original_full_path):
+                        try:
+                            from PIL import Image
+                            with Image.open(original_full_path) as img:
+                                # Convert RGBA to RGB if necessary
+                                if img.mode in ('RGBA', 'LA'):
+                                    background = Image.new('RGB', img.size, 'white')
+                                    background.paste(img, mask=img.split()[-1])
+                                    img = background
+                                elif img.mode != 'RGB':
+                                    img = img.convert('RGB')
+                                
+                                # Calculate new dimensions
+                                max_size = 300
+                                ratio = max_size / max(img.size)
+                                if ratio < 1:
+                                    new_size = tuple(int(dim * ratio) for dim in img.size)
+                                    img = img.resize(new_size, Image.Resampling.LANCZOS)
+                                
+                                # Save thumbnail
+                                img.save(thumb_full_path, quality=85, optimize=True)
+                                print(f"Generated thumbnail: {thumb_full_path}")
+                        except Exception as e:
+                            print(f"Error generating thumbnail for {base_filename}: {str(e)}")
+                    
+                    # Use thumbnails path if it exists, otherwise use original
+                    if os.path.exists(thumb_full_path):
+                        img_path = f'/static/images/thumbnails/{thumb_filename}'
+                        print(f"Using thumbnail path: {img_path}")
+                    else:
+                        img_path = f'/static/images/{base_filename}'
+                        print(f"Using original path: {img_path}")
                     relevant_images.append(ImageReference(
                         filename=img["filename"],
                         page=img["page"],

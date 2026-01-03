@@ -8,6 +8,7 @@ from transformers import pipeline
 import numpy as np
 from nltk.tokenize import sent_tokenize
 import nltk
+from src.enhanced_summarizer import EnhancedSummarizer, split_into_sentences
 def download_nltk_data():
     """Download required NLTK data"""
     try:
@@ -26,9 +27,11 @@ class DocumentSummarizer:
         self,
         model_name: str = "facebook/bart-large-cnn",  # Changed to BART for better summarization
         max_chunk_length: int = 1024,  # Increased chunk size
-        min_chunk_length: int = 100,
+        min_chunk_length: int = 200, # Increased for longer summaries
         overlap_length: int = 50,
-        compression_ratio: float = 0.2  # Added compression ratio for more concise summaries
+        compression_ratio: float = 0.4,  # Increased for longer summaries
+        num_clusters: int = 5,  # Number of clusters for k-means
+        top_k_per_cluster: int = 2  # Number of sentences to select from each cluster
     ):
         """
         Initialize the document summarizer
@@ -45,6 +48,9 @@ class DocumentSummarizer:
         self.min_chunk_length = min_chunk_length
         self.overlap_length = overlap_length
         self.compression_ratio = compression_ratio
+        self.num_clusters = num_clusters
+        self.top_k_per_cluster = top_k_per_cluster
+        self.enhanced_summarizer = EnhancedSummarizer()
 
     def _split_into_chunks(self, text: str) -> List[str]:
         """Split long text into smaller chunks with overlap"""
@@ -127,7 +133,8 @@ class DocumentSummarizer:
         # Ensure NLTK data is available
         download_nltk_data()
         """
-        Generate both detailed and concise summaries for a document
+        Generate both detailed and concise summaries for a document using a combination
+        of transformer-based summarization and k-means clustering
         
         Args:
             sections: List of document sections with text content
@@ -137,6 +144,20 @@ class DocumentSummarizer:
             Dict containing different types of summaries
         """
         print("\nStarting document summarization...")
+        
+        # Extract all sentences from sections
+        all_sentences = []
+        for section in sections:
+            text = section.get('text', '')
+            sentences = split_into_sentences(text)
+            all_sentences.extend(sentences)
+        
+        # Use k-means clustering to identify key sentences
+        clustered_summary = self.enhanced_summarizer.cluster_summarize(
+            all_sentences,
+            num_clusters=self.num_clusters,
+            top_k=self.top_k_per_cluster
+        )
         
         # Group sections by importance/type
         main_sections = []
@@ -165,7 +186,7 @@ class DocumentSummarizer:
             
             if hierarchical:
                 # Create more concise section summaries
-                section_summary = self._summarize_chunk(section_text, ratio=0.15)  # More aggressive summarization
+                section_summary = self._summarize_chunk(section_text, ratio=0.3)  # Adjusted for longer summaries
                 formatted_summary = self._format_as_bullets(section_summary)
                 main_summaries.append(section_summary)
                 section_summaries.append({
@@ -189,7 +210,7 @@ class DocumentSummarizer:
         for i, chunk in enumerate(chunks):
             if len(chunk.strip()) > self.min_chunk_length:
                 print(f"Processing chunk {i+1}/{len(chunks)}...")
-                summary = self._summarize_chunk(chunk, ratio=0.2)  # More aggressive summarization
+                summary = self._summarize_chunk(chunk, ratio=0.4)  # Adjusted for longer summaries
                 chunk_summaries.append(summary)
 
         # Create final summary from chunk summaries
@@ -197,7 +218,7 @@ class DocumentSummarizer:
             # First get a concise summary
             intermediate_summary = self._summarize_chunk(
                 " ".join(chunk_summaries),
-                ratio=0.3
+                ratio=0.5
             )
             # Then format as bullet points
             final_summary = self._format_as_bullets(intermediate_summary)

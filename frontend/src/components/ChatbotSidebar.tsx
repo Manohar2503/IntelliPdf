@@ -5,7 +5,30 @@ import { Send } from 'lucide-react';
 import { useDocumentStore } from '@/store/useDocumentStore'; // Import the store
 
 export function ChatbotSidebar() {
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
+  interface Image {
+    filename: string;
+    page: number;
+    path: string;
+    caption?: string;
+    relevance_score: number;
+    ocr_text?: string;
+  }
+
+  interface Message {
+    sender: string;
+    text: string;
+    images?: Image[];
+  }
+
+  // Backend URL configuration
+  const BACKEND_URL = 'http://localhost:8080';
+  const getImageUrl = (path: string) => {
+    if (path.startsWith('http')) return path;
+    if (!path.startsWith('/')) return `${BACKEND_URL}/${path}`;
+    return `${BACKEND_URL}${path}`;
+  };
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { documents, activeDocId, setSelection } = useDocumentStore(); // Get documents, activeDocId, and setSelection from the store
@@ -56,6 +79,10 @@ export function ChatbotSidebar() {
 
       try {
         console.log('Sending query to chatbot:', userMessage.text);
+        if (!currentDocument) {
+          throw new Error('No document is currently loaded');
+        }
+        
         const response = await fetch("http://localhost:8080/chatbot", {
           method: "POST",
           headers: {
@@ -66,20 +93,32 @@ export function ChatbotSidebar() {
           }),
         });
         console.log('Response status:', response.status);
-
-
+        
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
 
         const data = await response.json();
         console.log('Response data:', data);
-        setMessages((prevMessages) => [...prevMessages, { sender: 'bot', text: data.response }]);
-      } catch (error) {
+        console.log('Images in response:', data.relevant_images);
+        const botMessage = {
+          sender: 'bot',
+          text: data.response,
+          images: data.relevant_images || []
+        };
+        console.log('Bot message with images:', botMessage);
+        setMessages((prevMessages) => [...prevMessages, botMessage]);
+      } catch (error: any) {
         console.error('Error sending message to chatbot:', error);
+        let errorMessage = 'Sorry, I could not get a response. Please try again.';
+        if (error.message.includes('No document is currently loaded')) {
+          errorMessage = 'Please upload and select a document first.';
+        }
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'bot', text: 'Sorry, I could not get a response. Please try again.' },
+          { sender: 'bot', text: errorMessage },
         ]);
       } finally {
         setIsLoading(false);
@@ -107,7 +146,38 @@ export function ChatbotSidebar() {
                   : 'bg-muted text-muted-foreground'
               }`}
             >
-              {msg.text}
+              <p>{msg.text}</p>
+              {msg.images && msg.images.length > 0 && (
+                <div className="mt-2 grid gap-2">
+                  {msg.images.map((image, imgIndex) => (
+                    <div key={imgIndex} className="relative">
+                      <img
+                        src={getImageUrl(image.path)}
+                        alt={image.caption || `Image from page ${image.page}`}
+                        className="rounded-md max-w-full h-auto cursor-pointer hover:opacity-90 border border-border"
+                        onError={(e) => {
+                          const imgElement = e.target as HTMLImageElement;
+                          console.error('Image failed to load:', imgElement.src);
+                          // Try loading without thumbnail
+                          if (imgElement.src.includes('_thumb')) {
+                            const newSrc = imgElement.src.replace('_thumb.', '.');
+                            console.log('Trying original image:', newSrc);
+                            imgElement.src = newSrc;
+                          }
+                        }}
+                        onClick={() => {
+                          if (setSelection) {
+                            setSelection({ text: '', page: image.page, rect: null });
+                          }
+                        }}
+                      />
+                      {image.caption && (
+                        <p className="text-sm text-muted-foreground mt-1">{image.caption}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ))}

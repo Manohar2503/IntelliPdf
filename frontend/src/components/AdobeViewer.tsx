@@ -7,6 +7,17 @@ import React, {
 } from "react";
 import { PdfDoc, DocumentSelection } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { useDocumentImages } from "@/hooks/useDocumentImages";
+import PDFImageViewer from "./PDFImageViewer";
+import { Button } from "./ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 
 interface AdobeViewerProps {
   pdfDoc: PdfDoc;
@@ -35,6 +46,7 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
     const [selectedText, setSelectedText] = useState<string>('');
     const { toast } = useToast();
     const mountedRef = useRef(true);
+    const { images, statistics, loading: imagesLoading } = useDocumentImages(pdfDoc.id);
 
     useEffect(() => {
       mountedRef.current = true;
@@ -91,11 +103,11 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
           
         } catch (err) {
           console.error("Navigation error:", err);
-          toast({
-            title: "Navigation Error",
-            description: `Could not navigate to page ${page}`,
-            variant: "destructive",
-          });
+          // toast({
+          //   title: "Navigation Error",
+          //   description: `Could not navigate to page ${page}`,
+          //   variant: "destructive",
+          // });
           throw err;
         }
       },
@@ -408,6 +420,29 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
       return mb < 1 ? `${Math.round(mb * 1024)} KB` : `${mb.toFixed(2)} MB`;
     };
 
+    const renderImageStats = () => {
+      if (!statistics) return null;
+      
+      return (
+        <div className="space-y-2">
+          <p>Total Images: {statistics.total_count}</p>
+          <p>Total Size: {statistics.total_size_mb.toFixed(2)} MB</p>
+          <div>
+            <h4 className="font-semibold">Format Distribution:</h4>
+            {Object.entries(statistics.by_format).map(([format, count]) => (
+              <p key={format}>{format.toUpperCase()}: {count}</p>
+            ))}
+          </div>
+          <div>
+            <h4 className="font-semibold">Size Distribution:</h4>
+            <p>Small: {statistics.size_distribution.small}</p>
+            <p>Medium: {statistics.size_distribution.medium}</p>
+            <p>Large: {statistics.size_distribution.large}</p>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="w-full h-full flex flex-col">
         <div className="flex justify-between items-center p-4 border-b border-border bg-card">
@@ -416,6 +451,30 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
             <span>{formatFileSize(pdfDoc.sizeBytes)}</span>
             <span>{pdfDoc.pages} pages</span>
             <span className="text-success font-medium">Analysis Complete</span>
+            
+            {/* Image Viewer Button */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  disabled={imagesLoading || !images.length}
+                >
+                  {imagesLoading ? "Loading Images..." : `View ${images.length} Images`}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[90vw] sm:w-[600px]">
+                <SheetHeader>
+                  <SheetTitle>Document Images</SheetTitle>
+                  <SheetDescription>
+                    {renderImageStats()}
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-4 overflow-y-auto" style={{ maxHeight: "calc(100vh - 200px)" }}>
+                  <PDFImageViewer docId={pdfDoc.id} images={images} />
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
         <div className="flex-1 relative">

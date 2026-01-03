@@ -371,71 +371,36 @@ def get_chatbot_response(query: str, top_k: int = 3) -> ChatbotResponse:
         for section in sections:
             for img in section.get("images", []):
                 try:
-                    # Handle path being either a string or a dict with 'thumbnail' key
-                    # Get the base filename and ensure it exists in static/images
-                    base_filename = os.path.basename(original_path)
-                    extension = os.path.splitext(base_filename)[1]
+                    # Get the image path and filename
+                    img_path = img.get("path", "")
+                    img_filename = img.get("filename", "")
                     
-                    # Generate thumbnail name
-                    thumb_filename = f"{os.path.splitext(base_filename)[0]}_thumb{extension}"
+                    if not img_path or not img_filename:
+                        continue
                     
-                    # Ensure directories exist
-                    static_dir = os.path.join(_project_root(), "static")
-                    images_dir = os.path.join(static_dir, "images")
-                    thumbnails_dir = os.path.join(images_dir, "thumbnails")
-                    
-                    os.makedirs(static_dir, exist_ok=True)
-                    os.makedirs(images_dir, exist_ok=True)
-                    os.makedirs(thumbnails_dir, exist_ok=True)
-                    
-                    # Full path to the original and thumbnail
-                    original_full_path = os.path.join(images_dir, base_filename)
-                    thumb_full_path = os.path.join(thumbnails_dir, thumb_filename)
-                    
-                    print(f"Original image path: {original_full_path}")
-                    print(f"Thumbnail path: {thumb_full_path}")
-                    
-                    # If thumbnail doesn't exist, try to generate it
-                    if not os.path.exists(thumb_full_path) and os.path.exists(original_full_path):
-                        try:
-                            from PIL import Image
-                            with Image.open(original_full_path) as img:
-                                # Convert RGBA to RGB if necessary
-                                if img.mode in ('RGBA', 'LA'):
-                                    background = Image.new('RGB', img.size, 'white')
-                                    background.paste(img, mask=img.split()[-1])
-                                    img = background
-                                elif img.mode != 'RGB':
-                                    img = img.convert('RGB')
-                                
-                                # Calculate new dimensions
-                                max_size = 300
-                                ratio = max_size / max(img.size)
-                                if ratio < 1:
-                                    new_size = tuple(int(dim * ratio) for dim in img.size)
-                                    img = img.resize(new_size, Image.Resampling.LANCZOS)
-                                
-                                # Save thumbnail
-                                img.save(thumb_full_path, quality=85, optimize=True)
-                                print(f"Generated thumbnail: {thumb_full_path}")
-                        except Exception as e:
-                            print(f"Error generating thumbnail for {base_filename}: {str(e)}")
-                    
-                    # Use thumbnails path if it exists, otherwise use original
-                    if os.path.exists(thumb_full_path):
-                        img_path = f'/static/images/thumbnails/{thumb_filename}'
-                        print(f"Using thumbnail path: {img_path}")
+                    # If path is a dict with thumbnail/original/processed, extract the path
+                    if isinstance(img_path, dict):
+                        # Prefer thumbnail for faster loading
+                        final_path = img_path.get("thumbnail") or img_path.get("original", "")
                     else:
-                        img_path = f'/static/images/{base_filename}'
-                        print(f"Using original path: {img_path}")
+                        final_path = img_path
+                    
+                    if not final_path:
+                        continue
+                    
+                    # Normalize path (replace backslashes with forward slashes)
+                    final_path = final_path.replace("\\", "/")
+                    if not final_path.startswith("/"):
+                        final_path = "/" + final_path
+                    
                     relevant_images.append(ImageReference(
-                        filename=img["filename"],
-                        page=img["page"],
-                        path=img_path,
-                        relevance_score=img["relevance_score"],
-                        ocr_text=img.get("ocr_text"),
-                        ai_labels=img.get("ai_labels"),
-                        caption=f"Image from page {img['page']}" + (f" - {img.get('ocr_text')[:100]}..." if img.get('ocr_text') else "")
+                        filename=img_filename,
+                        page=img.get("page", 1),
+                        path=final_path,
+                        relevance_score=img.get("relevance_score", 0.0),
+                        ocr_text=img.get("ocr_text", ""),
+                        ai_labels=img.get("ai_labels", []),
+                        caption=f"Image from page {img.get('page', 1)}"
                     ))
                 except Exception as e:
                     print(f"Error processing image: {str(e)}")

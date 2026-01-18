@@ -6,6 +6,7 @@ import { useDocumentStore } from "@/store/useDocumentStore";
 import { AdobeViewerRef } from "./AdobeViewer";
 import { BACKEND_URL } from "@/config";
 import { Sparkles, BookOpen, ArrowRight, FileSearch } from "lucide-react";
+import { getSessionId } from "@/utils/session";
 
 interface RecommendationsProps {
   viewerRef: React.RefObject<AdobeViewerRef>;
@@ -15,16 +16,19 @@ interface Match {
   section: string;
   page_number: number;
   snippets: string[];
-  top_snippet: string;
   score: number;
 }
 
-interface Recommendation {
-  doc_id: string;
+interface SearchResultItem {
   title: string;
-  pdf_url: string;
-  source: string;
-  matches: Match[];
+  section: string;
+  page_number: number;
+  snippets: string[];
+  score: number;
+}
+
+interface SearchResponse {
+  results: SearchResultItem[];
 }
 
 export function Recommendations({ viewerRef }: RecommendationsProps) {
@@ -33,7 +37,7 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
 
   const context = selection || activeDoc;
 
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<SearchResultItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -46,22 +50,34 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
       setError(null);
 
       try {
-        const response = await fetch(`${BACKEND_URL}/search`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            selected_text: selection?.text || activeDoc?.name || "",
-            top_k: 3,
-            min_score: 0.3,
-          }),
-        });
+        const sessionId = getSessionId();
 
-        if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+        const response = await fetch(
+          `${BACKEND_URL}/search?sessionId=${sessionId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              selected_text: selection?.text || activeDoc?.name || "",
+              top_k: 3,
+              min_score: 0.3,
+            }),
+          }
+        );
 
-        const data: Recommendation[] = await response.json();
-        setRecommendations(data);
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(
+            `API error: ${response.status} ${response.statusText} - ${errText}`
+          );
+        }
+
+        const data: SearchResponse = await response.json();
+
+        // ✅ backend returns { results: [...] }
+        setRecommendations(data.results || []);
       } catch (err: any) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -70,13 +86,14 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
     };
 
     fetchRecommendations();
-  }, [context]);
+  }, [context, selection?.text, activeDoc?.name]);
 
-  const handleJumpToPage = async (rec: Recommendation, page: number) => {
-    if (!viewerRef.current || !rec.pdf_url) return;
+  const handleJumpToPage = async (page: number) => {
+    if (!viewerRef.current) return;
 
     try {
       setLoadingPage(page);
+
       let attempts = 0;
       const maxAttempts = 3;
 
@@ -119,9 +136,7 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
     );
   }
 
-  const contextLabel = selection
-    ? `Based on your selection`
-    : `Based on full document`;
+  const contextLabel = selection ? `Based on your selection` : `Based on full document`;
 
   const contextPreview = selection
     ? `"${selection.text.substring(0, 60)}..."`
@@ -141,7 +156,7 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
             variant="secondary"
             className="text-xs rounded-full bg-primary/10 text-primary"
           >
-            {loading ? "Loading..." : `${recommendations.length} docs`}
+            {loading ? "Loading..." : `${recommendations.length} results`}
           </Badge>
         </div>
 
@@ -183,88 +198,74 @@ export function Recommendations({ viewerRef }: RecommendationsProps) {
             </p>
           </div>
         ) : (
-          recommendations.map((rec, index) => (
-            <Card
-              key={`${rec.doc_id}-${index}`}
-              className="rounded-2xl border border-border bg-card hover:shadow-md transition"
-            >
-              <CardContent className="p-4">
-                {/* Card Top */}
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground leading-snug">
-                      {rec.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Source: {rec.source || "Library"}
-                    </p>
+          recommendations.map((match, idx) => {
+            const scorePercent = Math.round((match.score || 0) * 100);
+
+            return (
+              <Card
+                key={`${match.title}-${match.page_number}-${idx}`}
+                className="rounded-2xl border border-border bg-card hover:shadow-md transition"
+              >
+                <CardContent className="p-4">
+                  {/* Card Top */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground leading-snug">
+                        {match.title || "Document"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Section: {match.section || "N/A"}
+                      </p>
+                    </div>
+
+                    <Badge
+                      variant="secondary"
+                      className="text-xs rounded-full bg-primary/10 text-primary flex-shrink-0"
+                    >
+                      Match {scorePercent}%
+                    </Badge>
                   </div>
 
-                  <Badge
-                    variant="secondary"
-                    className="text-xs rounded-full bg-primary/10 text-primary flex-shrink-0"
-                  >
-                    {rec.matches.length} matches
-                  </Badge>
-                </div>
+                  {/* Snippet */}
+                  <div className="mt-4 space-y-2">
+                    <Badge variant="secondary" className="text-xs rounded-full">
+                      📌 Page {match.page_number}
+                    </Badge>
 
-                {/* Matches */}
-                <div className="mt-4 space-y-3">
-                  {rec.matches.map((match, idx) => {
-                    const scorePercent = Math.round((match.score || 0) * 100);
+                    <p className="text-sm text-foreground mt-2 leading-relaxed">
+                      {match.snippets?.[0] || "No snippet available"}
+                    </p>
 
-                    return (
-                      <div
-                        key={idx}
-                        className="rounded-xl border border-border bg-muted/20 p-3"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <Badge variant="secondary" className="text-xs rounded-full">
-                            📌 Page {match.page_number}
-                          </Badge>
-
-                          <span className="text-[11px] text-muted-foreground">
-                            Match: {scorePercent}%
-                          </span>
-                        </div>
-
-                        <p className="text-sm text-foreground mt-2 leading-relaxed">
-                          {match.top_snippet}
-                        </p>
-
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleJumpToPage(rec, match.page_number)}
-                          className="mt-3 w-full text-xs rounded-xl flex items-center justify-center gap-2"
-                          disabled={loadingPage !== null}
-                        >
-                          {loadingPage === match.page_number ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                              Jumping...
-                            </>
-                          ) : (
-                            <>
-                              Open this page <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleJumpToPage(match.page_number)}
+                      className="mt-3 w-full text-xs rounded-xl flex items-center justify-center gap-2"
+                      disabled={loadingPage !== null}
+                    >
+                      {loadingPage === match.page_number ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          Jumping...
+                        </>
+                      ) : (
+                        <>
+                          Open this page <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
 
       {/* Footer Tip */}
       <div className="p-4 border-t border-border">
         <p className="text-[11px] text-muted-foreground">
-          ✅ Tip: Selecting 1–2 lines gives better recommendations than selecting
-          a full page.
+          ✅ Tip: Selecting 1–2 lines gives better recommendations than selecting a full page.
         </p>
       </div>
     </div>

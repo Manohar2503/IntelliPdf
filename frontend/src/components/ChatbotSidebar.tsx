@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Send, Sparkles, FileText, Wand2 } from "lucide-react";
 import { BACKEND_URL } from "@/config";
 import { useDocumentStore } from "@/store/useDocumentStore";
+import { getSessionId } from "@/utils/session";
 
 export function ChatbotSidebar() {
   interface Image {
@@ -22,6 +23,7 @@ export function ChatbotSidebar() {
   }
 
   const getImageUrl = (path: string) => {
+    if (!path) return "";
     if (path.startsWith("http")) return path;
     if (!path.startsWith("/")) return `${BACKEND_URL}/${path}`;
     return `${BACKEND_URL}${path}`;
@@ -45,12 +47,10 @@ export function ChatbotSidebar() {
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ Auto scroll to last message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // ✅ Generate summary
   const handleGenerateSummary = async () => {
     if (!currentDocument) {
       setMessages((prev) => [
@@ -69,9 +69,14 @@ export function ChatbotSidebar() {
     ]);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/summary`, {
-        method: "GET",
-      });
+      const sessionId = getSessionId();
+
+      const response = await fetch(
+        `${BACKEND_URL}/summary?sessionId=${sessionId}`,
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
@@ -98,7 +103,6 @@ export function ChatbotSidebar() {
     }
   };
 
-  // ✅ Send chatbot message
   const handleSendMessage = async (customText?: string) => {
     const finalText = (customText ?? input).trim();
     if (!finalText || isLoading) return;
@@ -109,7 +113,6 @@ export function ChatbotSidebar() {
     setInput("");
     setIsLoading(true);
 
-    // selection for highlight feature
     setSelection({ text: finalText, page: 1, rect: null });
 
     try {
@@ -117,15 +120,16 @@ export function ChatbotSidebar() {
         throw new Error("No document is currently loaded");
       }
 
-      const response = await fetch(`${BACKEND_URL}/chatbot`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: finalText,
-        }),
-      });
+      const sessionId = getSessionId();
+
+      const response = await fetch(
+        `${BACKEND_URL}/chatbot?sessionId=${sessionId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: finalText }),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -161,7 +165,6 @@ export function ChatbotSidebar() {
     }
   };
 
-  // ✅ Quick prompts for students
   const quickActions = [
     {
       label: "1-Minute Recap",
@@ -248,7 +251,6 @@ export function ChatbotSidebar() {
                   {msg.text}
                 </p>
 
-                {/* Images */}
                 {msg.images && msg.images.length > 0 && (
                   <div className="mt-3 space-y-3">
                     {msg.images.map((image, imgIndex) => (
@@ -260,16 +262,9 @@ export function ChatbotSidebar() {
                           src={getImageUrl(image.path)}
                           alt={image.caption || `Image from page ${image.page}`}
                           className="w-full h-auto cursor-pointer hover:opacity-90 transition"
-                          onError={(e) => {
-                            const imgElement = e.target as HTMLImageElement;
-                            console.error("Image failed to load:", imgElement.src);
-                            if (imgElement.src.includes("_thumb")) {
-                              imgElement.src = imgElement.src.replace("_thumb.", ".");
-                            }
-                          }}
-                          onClick={() => {
-                            setSelection({ text: "", page: image.page, rect: null });
-                          }}
+                          onClick={() =>
+                            setSelection({ text: "", page: image.page, rect: null })
+                          }
                         />
 
                         <div className="p-2">
@@ -287,23 +282,6 @@ export function ChatbotSidebar() {
           );
         })}
 
-        {/* Typing indicator */}
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="max-w-[78%] rounded-2xl px-4 py-3 bg-muted/60 border border-border">
-              <p className="text-[11px] text-muted-foreground mb-1">
-                IntelliPDF Tutor 🤖
-              </p>
-              <div className="flex gap-2 items-center text-sm text-muted-foreground">
-                <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" />
-                <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
-                <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
-                <span className="ml-2">Thinking...</span>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div ref={bottomRef} />
       </div>
 
@@ -311,7 +289,7 @@ export function ChatbotSidebar() {
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Ask anything… (ex: explain surface area heat loss)"
+            placeholder="Ask anything…"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -330,10 +308,6 @@ export function ChatbotSidebar() {
             <Send className="w-4 h-4" />
           </Button>
         </div>
-
-        <p className="text-[11px] text-muted-foreground mt-2">
-          ✅ Tip: Use “1-Minute Recap” for quick revision before exam.
-        </p>
       </div>
     </div>
   );

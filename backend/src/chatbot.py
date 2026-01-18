@@ -8,6 +8,7 @@ import numpy as np
 import google.generativeai as genai
 from dotenv import load_dotenv
 from src.summarizer import DocumentSummarizer
+from src.singletons import embedder
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,7 +28,7 @@ genai.configure(api_key=api_key)
 # Local embedding helper (your project already has this class in src.ranker)
 try:
     from src.ranker import EmbeddingGenerator
-    embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
+    #embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
 except Exception:
     embedder = None
 

@@ -1,256 +1,341 @@
 """
-Enhanced document summarization module with support for large documents
+FAST Document Summarization Module (CPU friendly + caching)
+✅ Student 1-Minute Recap Mode
+✅ Removes noisy header/footer lines (names, dept, unit labels)
+✅ Removes repeated lines & duplicate bullets
 """
 
-import os
-from typing import List, Dict, Optional
-from transformers import pipeline
-import numpy as np
-from nltk.tokenize import sent_tokenize
-import nltk
-from src.enhanced_summarizer import EnhancedSummarizer, split_into_sentences
-def download_nltk_data():
-    """Download required NLTK data"""
-    try:
-        # Try to find the punkt tokenizer
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        # Download punkt tokenizer data
-        nltk.download('punkt', quiet=True)
-        nltk.download('punkt_tab', quiet=True)
+import json
+import hashlib
+import re
+from collections import Counter
+from pathlib import Path
+from typing import List, Dict
 
-# Download required NLTK data at module initialization
+import nltk
+from nltk.tokenize import sent_tokenize
+from transformers import pipeline
+
+# ---------------------------
+# NLTK Setup
+# ---------------------------
+def download_nltk_data():
+    try:
+        nltk.data.find("tokenizers/punkt")
+    except LookupError:
+        nltk.download("punkt", quiet=True)
+
 download_nltk_data()
 
+
+# ---------------------------
+# Summarizer Class
+# ---------------------------
 class DocumentSummarizer:
     def __init__(
         self,
-        model_name: str = "facebook/bart-large-cnn",  # Changed to BART for better summarization
-        max_chunk_length: int = 1024,  # Increased chunk size
-        min_chunk_length: int = 200, # Increased for longer summaries
-        overlap_length: int = 50,
-        compression_ratio: float = 0.4,  # Increased for longer summaries
-        num_clusters: int = 5,  # Number of clusters for k-means
-        top_k_per_cluster: int = 2  # Number of sentences to select from each cluster
+        model_name: str = "sshleifer/distilbart-cnn-12-6",  # ✅ FAST model
+        max_chunk_words: int = 450,  # ✅ small chunk => faster
+        min_chunk_words: int = 80,
+        max_chunks: int = 6,  # ✅ limit chunks so it won't take forever
+        cache_path: str = "output/summary_cache.json",
     ):
-        """
-        Initialize the document summarizer
-        
-        Args:
-            model_name: The name of the summarization model to use
-            max_chunk_length: Maximum token length for each chunk
-            min_chunk_length: Minimum token length for each chunk
-            overlap_length: Number of tokens to overlap between chunks
-            compression_ratio: Target ratio for summary length compared to original
-        """
-        self.summarizer = pipeline("summarization", model=model_name)
-        self.max_chunk_length = max_chunk_length
-        self.min_chunk_length = min_chunk_length
-        self.overlap_length = overlap_length
-        self.compression_ratio = compression_ratio
-        self.num_clusters = num_clusters
-        self.top_k_per_cluster = top_k_per_cluster
-        self.enhanced_summarizer = EnhancedSummarizer()
+        self.model_name = model_name
+        self.max_chunk_words = max_chunk_words
+        self.min_chunk_words = min_chunk_words
+        self.max_chunks = max_chunks
+        self.cache_path = Path(cache_path)
 
+        # ✅ load model once
+        self.summarizer = pipeline("summarization", model=self.model_name)
+
+    # ---------------------------
+    # Cache Helpers
+    # ---------------------------
+    def _make_cache_key(self, text: str) -> str:
+        return hashlib.md5(text.encode("utf-8")).hexdigest()
+
+    def _load_cache(self) -> Dict:
+        if self.cache_path.exists():
+            try:
+                return json.loads(self.cache_path.read_text(encoding="utf-8"))
+            except Exception:
+                return {}
+        return {}
+
+    def _save_cache(self, cache: Dict):
+        self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+        self.cache_path.write_text(json.dumps(cache, indent=2), encoding="utf-8")
+
+    # ---------------------------
+    # Cleaning Helpers (IMPORTANT)
+    # ---------------------------
+    def _normalize_line(self, line: str) -> str:
+        line = line.strip()
+        line = re.sub(r"\s+", " ", line)
+        line = re.sub(r"^[•\-–—]+", "", line).strip()
+        return line.lower()
+
+    def _is_noise_line(self, line: str) -> bool:
+        """
+        Filter out repeated headers, footers, author names, dept, unit labels, etc.
+        """
+        l = line.lower().strip()
+
+        if not l:
+            return True
+
+        # too short
+        if len(l) < 4:
+            return True
+
+        # mostly numbers/symbols
+        if re.fullmatch(r"[\d\W_]+", l):
+            return True
+
+        # ✅ common PDF header/footer noise keywords
+        noise_patterns = [
+            "asst.", "assistant professor",
+            "dept", "department",
+            "civil engineering",
+            "college",
+            "university",
+            "unit-", "unit -", "unit iii", "unit-iii",
+            "mirza", "mahaboob", "baig",
+            "page", "copyright",
+        ]
+
+        if any(p in l for p in noise_patterns):
+            return True
+
+        # garbage OCR patterns
+        if "www." in l or "http" in l:
+            return True
+
+        return False
+
+    def _clean_full_text(self, text: str) -> str:
+        """
+        Remove noisy lines & repeated lines.
+        This is the MAIN improvement that fixes bad summaries.
+        """
+        lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+
+        # 1) remove obvious noise
+        filtered = [ln for ln in lines if not self._is_noise_line(ln)]
+        if not filtered:
+            return ""
+
+        # 2) remove repeated lines (likely header/footer)
+        normalized = [self._normalize_line(ln) for ln in filtered]
+        counts = Counter(normalized)
+
+        cleaned_lines = []
+        for ln in filtered:
+            n = self._normalize_line(ln)
+            # if line repeats many times => header/footer
+            if counts[n] >= 4:  # ✅ tune: 3/4/5 based on PDFs
+                continue
+            cleaned_lines.append(ln)
+
+        # 3) final join
+        return "\n".join(cleaned_lines).strip()
+
+    def _clean_headings(self, headings: List[str]) -> List[str]:
+        """
+        Remove junk headings & duplicates.
+        """
+        cleaned = []
+        seen = set()
+
+        for h in headings:
+            hh = (h or "").strip()
+            if not hh:
+                continue
+
+            if self._is_noise_line(hh):
+                continue
+
+            # remove very long heading-like fragments
+            if len(hh.split()) > 12:
+                continue
+
+            key = self._normalize_line(hh)
+            if key in seen:
+                continue
+            seen.add(key)
+
+            cleaned.append(hh)
+
+        return cleaned
+
+    # ---------------------------
+    # Chunking
+    # ---------------------------
     def _split_into_chunks(self, text: str) -> List[str]:
-        """Split long text into smaller chunks with overlap"""
+        """
+        Split text into word-limited chunks using sentence boundaries.
+        """
         sentences = sent_tokenize(text)
         chunks = []
-        current_chunk = []
-        current_length = 0
-        
-        for sentence in sentences:
-            sentence_length = len(sentence.split())
-            
-            if current_length + sentence_length > self.max_chunk_length:
-                if current_chunk:
-                    chunks.append(" ".join(current_chunk))
-                    # Keep last few sentences for overlap
-                    overlap_sentences = current_chunk[-2:]  # Keep last 2 sentences
-                    current_chunk = overlap_sentences + [sentence]
-                    current_length = sum(len(s.split()) for s in current_chunk)
-                else:
-                    # If a single sentence is too long, split it
-                    chunks.append(sentence[:self.max_chunk_length])
-                    current_chunk = []
-                    current_length = 0
+        current = []
+        word_count = 0
+
+        for s in sentences:
+            w = len(s.split())
+            if word_count + w > self.max_chunk_words:
+                if current:
+                    chunks.append(" ".join(current).strip())
+                current = [s]
+                word_count = w
             else:
-                current_chunk.append(sentence)
-                current_length += sentence_length
-        
-        if current_chunk:
-            chunks.append(" ".join(current_chunk))
-            
-        return chunks
+                current.append(s)
+                word_count += w
 
-    def _format_as_bullets(self, text: str) -> str:
-        """Format text as bullet points"""
-        sentences = sent_tokenize(text)
-        # Filter out very short sentences or incomplete ones
-        valid_sentences = [s.strip() for s in sentences if len(s.split()) > 5 and s.strip().endswith(('.', '!', '?'))]
-        
-        # Convert sentences to bullet points
-        bullet_points = []
-        current_point = []
-        
-        for sentence in valid_sentences:
-            current_point.append(sentence)
-            if len(' '.join(current_point).split()) >= 20:  # Aim for reasonable bullet point length
-                bullet_points.append('• ' + ' '.join(current_point))
-                current_point = []
-                
-        if current_point:  # Add any remaining sentences
-            bullet_points.append('• ' + ' '.join(current_point))
-            
-        return '\n'.join(bullet_points)
+        if current:
+            chunks.append(" ".join(current).strip())
 
-    def _summarize_chunk(self, text: str, ratio: float = None) -> str:
-        """Summarize a single chunk of text"""
-        try:
-            ratio = ratio or self.compression_ratio
-            text_length = len(text.split())
-            max_length = max(int(text_length * ratio), self.min_chunk_length)
-            min_length = min(self.min_chunk_length, max_length - 50)
-            
-            summary = self.summarizer(
-                text,
-                max_length=max_length,
-                min_length=min_length,
-                do_sample=False,
-                truncation=True
-            )
-            summary_text = summary[0]["summary_text"]
-            return summary_text
-        except Exception as e:
-            print(f"Summarization error: {str(e)}")
-            return text[:self.max_chunk_length]  # Fallback to truncation
+        return chunks[: self.max_chunks]
 
-    def summarize_document(
-        self,
-        sections: List[Dict],
-        hierarchical: bool = True
-    ) -> Dict[str, str]:
-        # Ensure NLTK data is available
-        download_nltk_data()
+    # ---------------------------
+    # Output Formatting
+    # ---------------------------
+    def _format_as_bullets(self, text: str, max_bullets: int = 6) -> str:
         """
-        Generate both detailed and concise summaries for a document using a combination
-        of transformer-based summarization and k-means clustering
-        
-        Args:
-            sections: List of document sections with text content
-            hierarchical: Whether to generate hierarchical summaries
-        
-        Returns:
-            Dict containing different types of summaries
+        Convert summary into student-friendly bullets.
+        Removes duplicate bullets.
         """
-        print("\nStarting document summarization...")
-        
-        # Extract all sentences from sections
-        all_sentences = []
-        for section in sections:
-            text = section.get('text', '')
-            sentences = split_into_sentences(text)
-            all_sentences.extend(sentences)
-        
-        # Use k-means clustering to identify key sentences
-        clustered_summary = self.enhanced_summarizer.cluster_summarize(
-            all_sentences,
-            num_clusters=self.num_clusters,
-            top_k=self.top_k_per_cluster
-        )
-        
-        # Group sections by importance/type
-        main_sections = []
-        supplementary_sections = []
-        
-        for section in sections:
-            section_text = section.get("content", "").strip()
-            if not section_text:
+        sents = sent_tokenize(text)
+        sents = [s.strip() for s in sents if len(s.split()) >= 6]
+
+        bullets = []
+        seen = set()
+
+        for s in sents:
+            key = self._normalize_line(s)
+            if key in seen:
                 continue
-                
-            # Determine section importance by length and position
-            if len(section_text.split()) > 200:  # Consider longer sections as main content
-                main_sections.append(section)
-            else:
-                supplementary_sections.append(section)
-        
-        # Process main sections first
-        main_summaries = []
-        section_summaries = []
-        all_text = ""
-        
-        print(f"\nProcessing {len(main_sections)} main sections...")
-        for section in main_sections:
-            section_text = section.get("content", "").strip()
-            all_text += section_text + " "
-            
-            if hierarchical:
-                # Create more concise section summaries
-                section_summary = self._summarize_chunk(section_text, ratio=0.3)  # Adjusted for longer summaries
-                formatted_summary = self._format_as_bullets(section_summary)
-                main_summaries.append(section_summary)
-                section_summaries.append({
-                    "heading": section.get("heading", "Untitled Section"),
-                    "summary": formatted_summary
-                })
-        
-        # Add supplementary sections if needed
-        if supplementary_sections:
-            print(f"\nProcessing {len(supplementary_sections)} supplementary sections...")
-            for section in supplementary_sections:
-                section_text = section.get("content", "").strip()
-                if len(section_text.split()) > 50:  # Only include substantial sections
-                    all_text += section_text + " "
+            seen.add(key)
 
-        # Split and summarize the full document
-        print("\nGenerating document-level summary...")
-        chunks = self._split_into_chunks(all_text)
+            bullets.append(f"• {s}")
+            if len(bullets) >= max_bullets:
+                break
+
+        return "\n".join(bullets) if bullets else text.strip()
+
+    # ---------------------------
+    # Summarization Core
+    # ---------------------------
+    def _summarize_text(self, text: str) -> str:
+        """
+        Summarize a text chunk.
+        """
+        words = len(text.split())
+        if words < self.min_chunk_words:
+            return text.strip()
+
+        # ✅ dynamic max/min based on chunk length
+        max_len = min(140, max(60, int(words * 0.35)))
+        min_len = min(50, max_len - 10)
+
+        out = self.summarizer(
+            text,
+            max_length=max_len,
+            min_length=min_len,
+            do_sample=False,
+            truncation=True,
+        )
+        return out[0]["summary_text"].strip()
+
+    # ---------------------------
+    # Main Summarize Function
+    # ---------------------------
+    def summarize_document(self, sections: List[Dict]) -> Dict[str, str]:
+        """
+        sections: list of sections from current_doc.json
+        Each section has: heading, page_number, content, embedding
+        """
+        all_text_parts = []
+        headings = []
+
+        # collect text + headings
+        for sec in sections:
+            content = (sec.get("content") or "").strip()
+            heading = (sec.get("heading") or "").strip()
+
+            if content:
+                all_text_parts.append(content)
+            if heading:
+                headings.append(heading)
+
+        # join with newlines so cleaning works better
+        full_text = "\n".join(all_text_parts).strip()
+        full_text = self._clean_full_text(full_text)
+
+        if not full_text:
+            return {
+                "brief_summary": "Document is empty or no useful text found.",
+                "detailed_summary": "",
+                "section_summaries": [],
+            }
+
+        # ✅ Cache check
+        cache = self._load_cache()
+        key = self._make_cache_key(full_text)
+
+        if key in cache:
+            return cache[key]
+
+        # ✅ Clean headings too
+        headings = self._clean_headings(headings)
+
+        # ✅ Summarize chunks
+        chunks = self._split_into_chunks(full_text)
         chunk_summaries = []
-        
-        for i, chunk in enumerate(chunks):
-            if len(chunk.strip()) > self.min_chunk_length:
-                print(f"Processing chunk {i+1}/{len(chunks)}...")
-                summary = self._summarize_chunk(chunk, ratio=0.4)  # Adjusted for longer summaries
-                chunk_summaries.append(summary)
 
-        # Create final summary from chunk summaries
-        if chunk_summaries:
-            # First get a concise summary
-            intermediate_summary = self._summarize_chunk(
-                " ".join(chunk_summaries),
-                ratio=0.5
-            )
-            # Then format as bullet points
-            final_summary = self._format_as_bullets(intermediate_summary)
-        else:
-            final_summary = "Could not generate summary. Document may be empty or too short."
+        for chunk in chunks:
+            chunk_summaries.append(self._summarize_text(chunk))
 
-        # Create a more detailed summary but still in bullet points
-        detailed_summary = self._format_as_bullets(" ".join(chunk_summaries)) if chunk_summaries else ""
+        # ✅ Final summaries (Student recap mode)
+        combined = " ".join(chunk_summaries).strip()
 
-        print("\nSummarization complete!")
-        return {
-            "brief_summary": final_summary,
+        brief_summary_text = self._summarize_text(combined) if combined else ""
+        brief_summary = self._format_as_bullets(brief_summary_text, max_bullets=6)
+
+        detailed_summary = self._format_as_bullets(combined, max_bullets=12)
+
+        # ✅ keep section list only (clean headings)
+        section_list = []
+        for h in headings[:6]:
+            section_list.append({"heading": h})
+
+        result = {
+            "brief_summary": brief_summary,
             "detailed_summary": detailed_summary,
-            "section_summaries": section_summaries if hierarchical else []
+            "section_summaries": section_list,
         }
 
+        # ✅ Save cache
+        cache[key] = result
+        self._save_cache(cache)
+
+        return result
+
+    # ---------------------------
+    # Frontend Initial Message
+    # ---------------------------
     def generate_initial_message(self, summary_data: Dict[str, str]) -> str:
-        """Generate the initial chatbot message with document summary"""
-        brief = summary_data["brief_summary"]
+        brief = summary_data.get("brief_summary", "")
         sections = summary_data.get("section_summaries", [])
-        
-        message = "👋 I've analyzed the document. Here's a brief summary:\n\n"
-        message += brief + "\n\n"
-        
+
+        msg = "🎓 **1-Minute PDF Recap Ready!**\n\n"
+        msg += "**Main Points:**\n"
+        msg += brief + "\n\n"
+
         if sections:
-            message += "The document contains the following main sections:\n"
-            for section in sections[:5]:  # Show top 5 sections
-                message += f"• {section['heading']}\n"
-            
-            if len(sections) > 5:
-                message += f"...and {len(sections) - 5} more sections.\n"
-                
-        message += "\nYou can ask me specific questions about any part of the document!"
-        
-        return message
+            msg += "**Topics Covered:**\n"
+            for s in sections:
+                msg += f"• {s['heading']}\n"
+
+        msg += "\n✅ Now ask any question from this PDF!"
+        return msg

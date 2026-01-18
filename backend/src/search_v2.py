@@ -10,10 +10,11 @@ from pydantic import BaseModel
 
 from src.ranker import EmbeddingGenerator
 from src.scoring import RelevanceScorer
+from src.singletons import embedder
 
 # Initialize scoring system
 scorer = RelevanceScorer(min_similarity=0.3)
-embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
+#embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
 
 # Paths
 PAST_JSON_PATH = Path("output/output.json")

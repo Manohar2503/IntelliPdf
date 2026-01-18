@@ -37,7 +37,9 @@ def get_llm_response(messages):
 # INSIGHTS LOGIC
 # ====================================
 router = APIRouter()
-RECOMMENDATION_API = os.getenv("RECOMMENDATION_API", "http://localhost:8080/search")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8080")
+RECOMMENDATION_API = f"{BACKEND_URL}/search"
+
 
 class InsightsRequest(BaseModel):
     selected_text: str

@@ -14,8 +14,15 @@ from urllib.parse import quote
 
 from dotenv import load_dotenv # Import load_dotenv
 from src.search_v2 import search_documents, SearchRequest
+from src.singletons import embedder
+
 # Load environment variables from .env file
+import re
+
+
+
 load_dotenv()
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8080").rstrip("/")
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
@@ -23,6 +30,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+
+def clean_filename(name: str) -> str:
+    name = name.lower().strip()
+    name = name.replace(" ", "_")
+    name = re.sub(r"[^a-z0-9_\-.]", "", name)  # remove unwanted chars
+    return name
 # Add current directory to sys.path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -47,29 +60,6 @@ class ChatbotQuery(BaseModel):
 # ----------------------------
 app = FastAPI(title="PDF Insight Nexus")
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Mount static files directory with the correct absolute path
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-print(f"Serving static files from: {static_dir}")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Initialize summarizer
 summarizer = DocumentSummarizer()
 
@@ -86,9 +76,20 @@ OUTPUT_DIR = Path("output")
 # ----------------------------
 # CORS setup
 # ----------------------------
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "file://",
+    "null",
+]
+
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],  # frontend dev servers
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -105,7 +106,15 @@ app.add_middleware(
 PAST_JSON_PATH = OUTPUT_DIR / "output.json"
 CURRENT_JSON_PATH = OUTPUT_DIR / "current_doc.json"
 
-
+def safe_unlink(path: Path, retries=5, delay=0.3):
+    for _ in range(retries):
+        try:
+            path.unlink()
+            return True
+        except PermissionError:
+            time.sleep(delay)
+    return False
+    
 def load_json(path: Path):
     if path.exists():
         with open(path, "r", encoding="utf-8") as f:
@@ -146,7 +155,7 @@ async def get_summary():
 past_docs = load_json(PAST_JSON_PATH)
 current_docs = load_json(CURRENT_JSON_PATH)
 
-embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
+#embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
 
 
 # ----------------------------
@@ -231,7 +240,7 @@ def search_recommendations(req: SearchRequest):
             doc_matches_sorted = sorted(doc_matches, key=lambda x: x["score"], reverse=True)[:req.top_k]
             pdf_file_path = doc.get("file_path", "")
             encoded_filename = quote(Path(pdf_file_path).name)
-            public_pdf_url = f"http://localhost:8080/uploads/{encoded_filename}"
+            public_pdf_url = f"{BASE_URL}/uploads/{encoded_filename}"
             results_by_doc.append({
                 "doc_id": doc.get("doc_id", ""),
                 "title": doc.get("title", ""),
@@ -306,49 +315,57 @@ async def get_summary():
 
 @app.post("/upload/new")
 async def upload_new(file: UploadFile = File(...)):
-    """Handle single PDF upload for analysis"""
-    # Clear newpdf directory first
-    if NEWPDF_DIR.exists():
-        for f in NEWPDF_DIR.iterdir():
-            if f.is_file():
-                f.unlink()
-    
-    NEWPDF_DIR.mkdir(exist_ok=True, parents=True)
-    
-    if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
-    
-    file_path = NEWPDF_DIR / file.filename
-    with open(file_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    """Handle single PDF upload for analysis (SAFE for Windows + Desktop App)"""
 
-    unique_id = hashlib.md5(f"{file.filename}{time.time()}".encode()).hexdigest()
+    NEWPDF_DIR.mkdir(exist_ok=True, parents=True)
+
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    # ✅ Save file with unique name to avoid WinError 32 (file locked issue)
+    #safe_name = f"{uuid.uuid4().hex}_{file.filename}"
+    original_clean = clean_filename(file.filename)
+    short_id = uuid.uuid4().hex[:6]
+    safe_name = f"{Path(original_clean).stem}_{short_id}{Path(original_clean).suffix}"
+    file_path = NEWPDF_DIR / safe_name
+
+    # ✅ Save uploaded PDF
+    with open(file_path, "wb") as out_file:
+        shutil.copyfileobj(file.file, out_file)
+
+    unique_id = hashlib.md5(f"{safe_name}{time.time()}".encode()).hexdigest()
     size_bytes = os.path.getsize(file_path)
 
+    # ✅ Get pages
     try:
         with fitz.open(file_path) as doc:
             num_pages = doc.page_count
     except Exception:
         num_pages = 0
 
-    # Clear current_doc.json
+    # ✅ Clear current_doc.json safely
     current_doc_path = OUTPUT_DIR / "current_doc.json"
     if current_doc_path.exists():
-        current_doc_path.unlink()
+        try:
+            current_doc_path.unlink()
+        except Exception:
+            pass
 
     return {
         "message": "PDF uploaded for analysis",
         "file": {
             "id": unique_id,
-            "name": file.filename,
-            "url": f"http://localhost:8080/newpdf/{file.filename}",
+            "name": file.filename,  # original filename shown in UI
+            "storedName": safe_name,  # optional: stored unique filename
+            "url": f"{BASE_URL}/newpdf/{quote(safe_name)}",
             "sizeBytes": size_bytes,
             "pages": num_pages,
             "sections": [],
             "dateISO": time.strftime("%Y-%m-%dT%H:%M:%S"),
-            "status": "ready"
-        }
+            "status": "ready",
+        },
     }
+
 
 
 @app.post("/process")
@@ -403,4 +420,3 @@ app.include_router(podcast_router)
 app.include_router(images_router)
 app.mount("/newpdf", StaticFiles(directory=NEWPDF_DIR), name="newpdf")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-# app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from main import process_all_pdfs
 from src.chatbot import get_chatbot_response, get_initial_summary, ChatbotResponse
 from src.singletons import embedder
+from src.insights import router as insights_router
 
 
 # ----------------------------
@@ -73,6 +74,7 @@ def cosine_similarity(vec1, vec2):
 # FastAPI App
 # ----------------------------
 app = FastAPI(title="IntelliPDF - Folder Session System")
+app.include_router(insights_router)
 
 origins = [
     "http://localhost:5173",

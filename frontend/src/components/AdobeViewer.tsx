@@ -340,20 +340,23 @@ export const AdobeViewer = forwardRef<AdobeViewerRef, AdobeViewerProps>(
 
 
           previewPromise.then((previewInstance: any) => {
-            adobePreviewRef.current = previewInstance;
-            previewInstance.registerCallback(
-              window.AdobeDC.View.Enum.CallbackType.PREVIEW_READY,
-              () => {
-                setIsLoading(false);
-                console.log("Default PDF preview ready:", pdfDoc.name);
-              }
-            );
+  adobePreviewRef.current = previewInstance;
 
-            adobeViewRef.current.registerCallback(
-              window.AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
-              (event: any) => handleAdobeEvent(event)
-            );
-          });
+  previewInstance.registerCallback(
+    window.AdobeDC.View.Enum.CallbackType.PREVIEW_READY,
+    () => {
+      setIsLoading(false);
+      console.log("Default PDF preview ready:", pdfDoc.name);
+    }
+  );
+
+  // ✅ use adobeDCView not adobeViewRef.current
+  adobeDCView.registerCallback(
+    window.AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
+    (event: any) => handleAdobeEvent(event)
+  );
+});
+
 
           adobeViewRef.current = adobeDCView;
           setIsLoading(false);

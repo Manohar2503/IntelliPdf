@@ -8,6 +8,7 @@ import { useDocumentStore } from '@/store/useDocumentStore';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { PdfDoc } from '@/types';
+import { BACKEND_URL } from '@/config';
 
 
 export function DocumentLibrary() {
@@ -45,7 +46,7 @@ const handlePreview = (doc: any) => {
   const handleDelete = async (docId: string, docName: string) => {
     try {
       // Call backend DELETE endpoint
-      const res = await fetch(`http://localhost:8080/delete/${encodeURIComponent(docName)}`, {
+      const res = await fetch(`${BACKEND_URL}/delete/${encodeURIComponent(docName)}`, {
         method: "DELETE"
       });
       if (!res.ok) throw new Error("Failed to delete file from server");
@@ -65,7 +66,7 @@ const handlePreview = (doc: any) => {
   const handleClearAll = async () => {
     for (const doc of documents) {
       try {
-        await fetch(`http://localhost:8080/delete/${encodeURIComponent(doc.name)}`, {
+        await fetch(`${BACKEND_URL}/delete/${encodeURIComponent(doc.name)}`, {
           method: "DELETE"
         });
       } catch (err) {

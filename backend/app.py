@@ -1,109 +1,54 @@
-import sys
 import os
-import hashlib
 import time
 import shutil
 import uuid
 import fitz
-import json
-import subprocess
 import numpy as np
-
+import json
+import re
 from pathlib import Path
-from urllib.parse import quote
 
-from dotenv import load_dotenv # Import load_dotenv
-from src.search_v2 import search_documents, SearchRequest
-# Load environment variables from .env file
+from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-# Add current directory to sys.path
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-
-# Routers
-from src.insights import router as insights_router
-from src.podcast import router as podcast_router
-from src.images import router as images_router
-from src.chatbot import get_chatbot_response, get_initial_summary, ChatbotResponse # Import chatbot functions
-from src.summarizer import DocumentSummarizer
-
-# Embedding
-from src.ranker import EmbeddingGenerator
 from main import process_all_pdfs
+from src.chatbot import get_chatbot_response, get_initial_summary, ChatbotResponse
+from src.singletons import embedder
+from src.insights import router as insights_router
 
-
-class ChatbotQuery(BaseModel):
-    query: str
-    
 
 # ----------------------------
-# FastAPI App
+# Helpers
 # ----------------------------
-app = FastAPI(title="PDF Insight Nexus")
+def clean_filename(name: str) -> str:
+    name = name.lower().strip()
+    name = name.replace(" ", "_")
+    name = re.sub(r"[^a-z0-9_\-.]", "", name)
+    return name
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# Mount static files directory with the correct absolute path
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-print(f"Serving static files from: {static_dir}")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+def get_session_root(session_id: str) -> Path:
+    root = Path("storage") / "sessions" / session_id
+    (root / "pdfs").mkdir(parents=True, exist_ok=True)
+    (root / "output").mkdir(parents=True, exist_ok=True)
+    return root
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# Initialize summarizer
-summarizer = DocumentSummarizer()
+def get_session_pdf_dir(session_id: str) -> Path:
+    return get_session_root(session_id) / "pdfs"
 
-# ----------------------------
-# Required directories
-# ----------------------------
-os.makedirs("newpdf", exist_ok=True)
-os.makedirs("output", exist_ok=True)
-os.makedirs("static/audio", exist_ok=True)
 
-NEWPDF_DIR = Path("newpdf")
-OUTPUT_DIR = Path("output")
+def get_session_output_dir(session_id: str) -> Path:
+    return get_session_root(session_id) / "output"
 
-# ----------------------------
-# CORS setup
-# ----------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],  # frontend dev servers
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# ----------------------------
-# Mount static folders
-# ----------------------------
-
-# Static directories are mounted at the end of the file
-# ----------------------------
-# JSON paths
-# ----------------------------
-PAST_JSON_PATH = OUTPUT_DIR / "output.json"
-CURRENT_JSON_PATH = OUTPUT_DIR / "current_doc.json"
+def get_session_current_json(session_id: str) -> Path:
+    return get_session_output_dir(session_id) / "current_doc.json"
 
 
 def load_json(path: Path):
@@ -111,51 +56,10 @@ def load_json(path: Path):
         with open(path, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
-                docs = data.get("documents", [])
-                for doc in docs:
-                    if "sections" not in doc:
-                        doc["sections"] = []
-                return docs
-            except json.JSONDecodeError:
+                return data.get("documents", [])
+            except:
                 return []
     return []
-
-
-@app.post("/summarize")
-async def get_summary():
-    """Get summary of the current document"""
-    try:
-        # Load the current document sections
-        docs = load_json(CURRENT_JSON_PATH)
-        if not docs:
-            raise HTTPException(status_code=404, detail="No document found")
-            
-        # Get the first document's sections
-        sections = docs[0].get("sections", [])
-        if not sections:
-            raise HTTPException(status_code=404, detail="No sections found in document")
-            
-        # Generate summary
-        summary_data = summarizer.summarize_document(sections)
-        
-        return {"summary": summary_data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-past_docs = load_json(PAST_JSON_PATH)
-current_docs = load_json(CURRENT_JSON_PATH)
-
-embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
-
-
-# ----------------------------
-# Utilities
-# ----------------------------
-class SearchRequest(BaseModel):
-    selected_text: str
-    top_k: int = 3
-    min_score: float = 0.3
 
 
 def cosine_similarity(vec1, vec2):
@@ -163,167 +67,70 @@ def cosine_similarity(vec1, vec2):
     norm2 = np.linalg.norm(vec2)
     if norm1 == 0 or norm2 == 0:
         return 0.0
-    return np.dot(vec1, vec2) / (norm1 * norm2)
+    return float(np.dot(vec1, vec2) / (norm1 * norm2))
 
 
 # ----------------------------
-# API Endpoints
+# FastAPI App
 # ----------------------------
-@app.get("/test")
-def test_recommendation():
-    test_text = "The South of France, known for its stunning landscapes..."
-    query_embedding = np.array(embedder.embed_texts([test_text])[0])
-    results = []
-    all_docs = past_docs + current_docs
+app = FastAPI(title="IntelliPDF - Folder Session System")
+app.include_router(insights_router)
 
-    for doc in all_docs:
-        for sec in doc["sections"]:
-            sec_embedding = np.array(sec.get("embedding", []))
-            if sec_embedding.size == 0:
-                continue
-            score = cosine_similarity(query_embedding, sec_embedding)
-            snippets = [s["text"] for s in sec.get("snippets", [])]
-            snippet_text = snippets[0] if snippets else ""
-            results.append({
-                "doc_id": doc.get("doc_id", ""),
-                "title": doc.get("title", ""),
-                "pdf_url": doc.get("file_path", ""),
-                "section": sec.get("heading", ""),
-                "page_number": sec.get("page_number", 1),
-                "snippets": snippets,
-                "top_snippet": snippet_text,
-                "score": float(score)
-            })
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "file://",
+    "null",
+]
 
-    return sorted(results, key=lambda x: x["score"], reverse=True)[:3]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 
 
-@app.post("/search")
-def search_recommendations(req: SearchRequest):
-    query_text = req.selected_text.strip()
-    if not query_text:
-        return {"error": "No text provided"}
-
-    query_embedding = np.array(embedder.embed_texts([query_text])[0])
-    results_by_doc = []
-    all_docs = past_docs + current_docs
-
-    for doc in all_docs:
-        source = "past" if doc in past_docs else "current"
-        doc_matches = []
-        for sec in doc["sections"]:
-            sec_embedding = np.array(sec.get("embedding", []))
-            if sec_embedding.size == 0:
-                continue
-            score = cosine_similarity(query_embedding, sec_embedding)
-            if score < req.min_score:
-                continue
-            snippets = [s["text"] for s in sec.get("snippets", [])][:3]
-            snippet_text = snippets[0] if snippets else ""
-            doc_matches.append({
-                "section": sec.get("heading", ""),
-                "page_number": sec.get("page_number", 1),
-                "snippets": snippets,
-                "top_snippet": snippet_text,
-                "score": float(score)
-            })
-        if doc_matches:
-            doc_matches_sorted = sorted(doc_matches, key=lambda x: x["score"], reverse=True)[:req.top_k]
-            pdf_file_path = doc.get("file_path", "")
-            encoded_filename = quote(Path(pdf_file_path).name)
-            public_pdf_url = f"http://localhost:8080/uploads/{encoded_filename}"
-            results_by_doc.append({
-                "doc_id": doc.get("doc_id", ""),
-                "title": doc.get("title", ""),
-                "pdf_url": public_pdf_url,
-                "source": source,
-                "matches": doc_matches_sorted
-            })
-
-    return sorted(results_by_doc, key=lambda d: d["matches"][0]["score"], reverse=True)[:req.top_k]
+# ----------------------------
+# Models
+# ----------------------------
+class ChatbotQuery(BaseModel):
+    query: str
 
 
-@app.post("/chatbot", response_model=ChatbotResponse)
-async def chatbot_endpoint(query_data: ChatbotQuery):
-    """
-    Endpoint to get a chatbot response based on a query.
-    The backend will read the current_doc.json itself.
-    """
-    try:
-        print(f"\n=== Chatbot Endpoint ===")
-        print(f"Received query: {query_data.query}")
-
-        # Verify document exists
-        current_doc_path = Path("output/current_doc.json")
-        if not current_doc_path.exists():
-            print("Error: No document loaded (current_doc.json not found)")
-            return ChatbotResponse(
-                response="Please upload a document first.",
-                sources=[],
-                relevant_images=[]
-            )
-            
-        response = get_chatbot_response(query_data.query)
-        print(f"Generated response text: {response.response[:100]}...")
-        print(f"Found {len(response.relevant_images)} relevant images")
-        
-        # Log full response for debugging
-        print("\nFull response data:")
-        print(f"Response text length: {len(response.response)}")
-        print(f"Number of sources: {len(response.sources)}")
-        print(f"Number of images: {len(response.relevant_images)}")
-        for img in response.relevant_images:
-            print(f"Image: {img.filename} at page {img.page} (path: {img.path})")
-        
-        return response
-
-    except Exception as e:
-        import traceback
-        print(f"\nError in chatbot endpoint:")
-        print(f"Error type: {type(e).__name__}")
-        print(f"Error message: {str(e)}")
-        print("Traceback:")
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error: {str(e)}"
-        )
-
-@app.get("/summary", response_model=ChatbotResponse)
-async def get_summary():
-    """
-    Get initial summary of the uploaded document(s)
-    """
-    try:
-        summary = get_initial_summary()
-        return summary
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+class SearchRequest(BaseModel):
+    selected_text: str
+    top_k: int = 3
+    min_score: float = 0.3
 
 
-
-
+# ----------------------------
+# Routes
+# ----------------------------
 
 @app.post("/upload/new")
-async def upload_new(file: UploadFile = File(...)):
-    """Handle single PDF upload for analysis"""
-    # Clear newpdf directory first
-    if NEWPDF_DIR.exists():
-        for f in NEWPDF_DIR.iterdir():
-            if f.is_file():
-                f.unlink()
-    
-    NEWPDF_DIR.mkdir(exist_ok=True, parents=True)
-    
-    if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
-    
-    file_path = NEWPDF_DIR / file.filename
-    with open(file_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+async def upload_new(sessionId: str = Form(...), file: UploadFile = File(...)):
+    if not sessionId:
+        raise HTTPException(status_code=400, detail="sessionId is required")
 
-    unique_id = hashlib.md5(f"{file.filename}{time.time()}".encode()).hexdigest()
-    size_bytes = os.path.getsize(file_path)
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    session_pdf_dir = get_session_pdf_dir(sessionId)
+
+    original_clean = clean_filename(file.filename)
+    documentId = f"doc_{uuid.uuid4().hex[:10]}"
+    safe_name = f"{Path(original_clean).stem}_{documentId}.pdf"
+    file_path = session_pdf_dir / safe_name
+
+    with open(file_path, "wb") as out_file:
+        shutil.copyfileobj(file.file, out_file)
 
     try:
         with fitz.open(file_path) as doc:
@@ -331,76 +138,137 @@ async def upload_new(file: UploadFile = File(...)):
     except Exception:
         num_pages = 0
 
-    # Clear current_doc.json
-    current_doc_path = OUTPUT_DIR / "current_doc.json"
-    if current_doc_path.exists():
-        current_doc_path.unlink()
+    # delete only this session current json
+    session_current_doc = get_session_current_json(sessionId)
+    if session_current_doc.exists():
+        try:
+            session_current_doc.unlink()
+        except:
+            pass
 
     return {
-        "message": "PDF uploaded for analysis",
+        "message": "PDF uploaded",
+        "sessionId": sessionId,
+        "documentId": documentId,
         "file": {
-            "id": unique_id,
-            "name": file.filename,
-            "url": f"http://localhost:8080/newpdf/{file.filename}",
-            "sizeBytes": size_bytes,
+            "storedName": safe_name,
             "pages": num_pages,
-            "sections": [],
-            "dateISO": time.strftime("%Y-%m-%dT%H:%M:%S"),
-            "status": "ready"
+            "url": f"/storage/sessions/{sessionId}/pdfs/{safe_name}",
         }
     }
 
 
 @app.post("/process")
-async def process_pdfs_endpoint():
-    try:
-        OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
-        process_all_pdfs()
-        global past_docs, current_docs
-        past_docs = load_json(PAST_JSON_PATH)
-        current_docs = load_json(CURRENT_JSON_PATH)
-        return {
-            "message": "Processing complete",
-            "output_files": ["output/output.json", "output/current_doc.json"]
-        }
-        
-    except Exception as e:
-        return {"error": str(e)}
+async def process_endpoint(sessionId: str = Form(...)):
+    if not sessionId:
+        raise HTTPException(status_code=400, detail="sessionId is required")
+
+    session_pdf_dir = get_session_pdf_dir(sessionId)
+    session_output_dir = get_session_output_dir(sessionId)
+
+    pdf_files = list(session_pdf_dir.glob("*.pdf"))
+    if not pdf_files:
+        raise HTTPException(status_code=404, detail="No PDFs uploaded for this session")
+
+    session_current_doc_path = session_output_dir / "current_doc.json"
+
+    process_all_pdfs(
+        pdf_dir=session_pdf_dir,
+        output_current_path=session_current_doc_path
+    )
+
+    return {
+        "message": "Processing complete",
+        "sessionId": sessionId,
+        "output_file": str(session_current_doc_path).replace("\\", "/"),
+    }
+
+
+@app.post("/chatbot", response_model=ChatbotResponse)
+async def chatbot_endpoint(sessionId: str = Query(...), query_data: ChatbotQuery = None):
+    if query_data is None:
+        raise HTTPException(status_code=400, detail="Missing request body")
+
+    session_current_doc = get_session_current_json(sessionId)
+    if not session_current_doc.exists():
+        return ChatbotResponse(
+            response="Please upload and process a PDF first.",
+            sources=[],
+            relevant_images=[]
+        )
+
+    return get_chatbot_response(query_data.query, current_doc_path=session_current_doc)
+
+
+
+
+@app.get("/summary", response_model=ChatbotResponse)
+async def get_summary(sessionId: str = Query(...)):
+    session_current_doc = get_session_current_json(sessionId)
+
+    if not session_current_doc.exists():
+        return ChatbotResponse(response="Please upload and process a document first.")
+
+    return get_initial_summary(current_doc_path=session_current_doc)
+
+
+
+@app.post("/search")
+def search_endpoint(sessionId: str = Query(...), req: SearchRequest = None):
+    if req is None:
+        raise HTTPException(status_code=400, detail="Missing request body")
+
+    session_current_doc = get_session_current_json(sessionId)
+    docs = load_json(session_current_doc)
+
+    if not docs:
+        return {"results": []}
+
+    query_text = req.selected_text.strip()
+    if not query_text:
+        return {"results": []}
+
+    query_embedding = np.array(embedder.embed_texts([query_text])[0])
+
+    results = []
+    for doc in docs:
+        for sec in doc.get("sections", []):
+            sec_embedding = np.array(sec.get("embedding", []))
+            if sec_embedding.size == 0:
+                continue
+
+            score = cosine_similarity(query_embedding, sec_embedding)
+            if score < req.min_score:
+                continue
+
+            snippets = [s["text"] for s in sec.get("snippets", [])][:3]
+            results.append({
+                "title": doc.get("title", ""),
+                "section": sec.get("heading", ""),
+                "page_number": sec.get("page_number", 1),
+                "snippets": snippets,
+                "score": float(score),
+            })
+
+    results = sorted(results, key=lambda x: x["score"], reverse=True)[:req.top_k]
+    return {"results": results}
 
 
 @app.delete("/delete/{filename}")
-async def delete_pdf(filename: str):
-    file_path = NEWPDF_DIR / filename
-    if file_path.exists():
-        file_path.unlink()
-        return {"message": f"{filename} deleted."}
-    else:
+async def delete_pdf(filename: str, sessionId: str = Query(...)):
+    session_pdf_dir = get_session_pdf_dir(sessionId)
+    file_path = session_pdf_dir / filename
+
+    if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
 
-
-@app.delete("/deletefolder")
-async def cleanup_folders():
-    FOLDERS = ["newpdf", "input", "output"]
-    try:
-        for folder_name in FOLDERS:
-            folder_path = Path(folder_name)
-            if folder_path.exists() and folder_path.is_dir():
-                for item in folder_path.iterdir():
-                    if item.is_file():
-                        item.unlink()
-                    elif item.is_dir():
-                        shutil.rmtree(item)
-        return JSONResponse(content={"message": "Folders cleaned and recreated"}, status_code=200)
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    file_path.unlink()
+    return {"message": f"{filename} deleted successfully"}
 
 
-# ----------------------------
-# Attach Routers
-# ----------------------------
-app.include_router(insights_router)
-app.include_router(podcast_router)
-app.include_router(images_router)
-app.mount("/newpdf", StaticFiles(directory=NEWPDF_DIR), name="newpdf")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-# app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+@app.delete("/session/clear")
+async def clear_session(sessionId: str = Query(...)):
+    session_root = Path("storage") / "sessions" / sessionId
+    if session_root.exists():
+        shutil.rmtree(session_root)
+    return {"message": f"Session {sessionId} cleared"}

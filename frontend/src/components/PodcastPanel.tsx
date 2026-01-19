@@ -9,6 +9,7 @@ import { aiService } from '@/mocks/ai';
 import { useToast } from '@/hooks/use-toast';
 import { useContext } from "react";
 import { useInsights } from "../pages/InsightsContext"; // ✅ import context
+import { BACKEND_URL } from '@/config';
 
 interface PodcastPanelProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ export function PodcastPanel({ isOpen, onClose }: PodcastPanelProps) {
 
   const generatePodcastMutation = useMutation({
   mutationFn: async () => {
-    const response = await fetch("http://localhost:8080/podcast", {
+    const response = await fetch(`${BACKEND_URL}/summary/podcast`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +64,7 @@ export function PodcastPanel({ isOpen, onClose }: PodcastPanelProps) {
     return response.json();
   },
   onSuccess: (data) => {
-      setAudioUrl(`http://localhost:8080${data.audio_url}`); // directly from backend
+      setAudioUrl(`${BACKEND_URL}${data.audio_url}`); // directly from backend
     toast({
       title: "Podcast Generated",
       description: "Your podcast is ready!",

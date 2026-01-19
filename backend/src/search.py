@@ -6,6 +6,7 @@ import json
 import numpy as np
 from src.ranker import EmbeddingGenerator
 from src.scoring import RelevanceScorer, cosine_similarity
+from src.singletons import embedder
 
 app = FastAPI()
 
@@ -32,7 +33,7 @@ def load_json(path: Path):
 
 current_docs = load_json(CURRENT_JSON_PATH)
 
-embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
+#embedder = EmbeddingGenerator(model_name="all-MiniLM-L6-v2")
 
 class SearchRequest(BaseModel):
     selected_text: str

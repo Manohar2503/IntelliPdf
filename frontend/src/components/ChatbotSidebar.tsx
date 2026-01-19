@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Send } from 'lucide-react';
-import { useDocumentStore } from '@/store/useDocumentStore'; // Import the store
+import React, { useEffect, useRef, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Send, Sparkles, FileText, Wand2 } from "lucide-react";
+import { BACKEND_URL } from "@/config";
+import { useDocumentStore } from "@/store/useDocumentStore";
+import { getSessionId } from "@/utils/session";
 
 export function ChatbotSidebar() {
   interface Image {
@@ -15,189 +17,297 @@ export function ChatbotSidebar() {
   }
 
   interface Message {
-    sender: string;
+    sender: "user" | "bot";
     text: string;
     images?: Image[];
   }
 
-  // Backend URL configuration
-  const BACKEND_URL = 'http://localhost:8080';
   const getImageUrl = (path: string) => {
-    if (path.startsWith('http')) return path;
-    if (!path.startsWith('/')) return `${BACKEND_URL}/${path}`;
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    if (!path.startsWith("/")) return `${BACKEND_URL}/${path}`;
     return `${BACKEND_URL}${path}`;
   };
 
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { documents, activeDocId, setSelection } = useDocumentStore(); // Get documents, activeDocId, and setSelection from the store
+  const { documents, activeDocId, setSelection } = useDocumentStore();
 
-  // Derive currentDocument from documents and activeDocId
-  const currentDocument = activeDocId ? documents.find(doc => doc.id === activeDocId) : null;
+  const currentDocument = activeDocId
+    ? documents.find((doc) => doc.id === activeDocId)
+    : null;
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      sender: "bot",
+      text: `Hey buddy 👋🎓\nUpload + Analyze the PDF, then use **1-Minute Recap** or ask me anything ✅`,
+    },
+  ]);
+
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Get initial summary when a document is loaded
-    const fetchInitialSummary = async () => {
-      if (currentDocument) {
-        setIsLoading(true);
-        try {
-          const response = await fetch("http://localhost:8080/summary", {
-            method: "GET"
-          });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+  const handleGenerateSummary = async () => {
+    if (!currentDocument) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "⚠️ Please upload and select a document first ✅" },
+      ]);
+      return;
+    }
 
-          const data = await response.json();
-          setMessages([{ sender: 'bot', text: data.response }]);
-        } catch (error) {
-          console.error('Error fetching summary:', error);
-          setMessages([{ 
-            sender: 'bot', 
-            text: 'Hello! The document is loaded. How can I help you with it?' 
-          }]);
-        } finally {
-          setIsLoading(false);
+    if (isLoading) return;
+    setIsLoading(true);
+
+    setMessages((prev) => [
+      ...prev,
+      { sender: "bot", text: "✨ Creating your 1-minute recap... ⏳" },
+    ]);
+
+    try {
+      const sessionId = getSessionId();
+
+      const response = await fetch(
+        `${BACKEND_URL}/summary?sessionId=${sessionId}`,
+        {
+          method: "GET",
         }
-      }
-    };
+      );
 
-    fetchInitialSummary();
-  }, [currentDocument]);
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
-  const handleSendMessage = async () => {
-    if (input.trim() && !isLoading) {
-      const userMessage = { sender: 'user', text: input };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
-      setInput('');
-      setIsLoading(true);
-      setSelection({ text: userMessage.text, page: 1, rect: null }); // Set the chatbot query as selection
+      const data = await response.json();
 
-      // We don't need to check for document content as backend reads from current_doc.json
-
-      try {
-        console.log('Sending query to chatbot:', userMessage.text);
-        if (!currentDocument) {
-          throw new Error('No document is currently loaded');
+      setMessages((prev) => {
+        const updated = [...prev];
+        if (
+          updated.length > 0 &&
+          updated[updated.length - 1].text.includes("Creating your 1-minute recap")
+        ) {
+          updated.pop();
         }
-        
-        const response = await fetch("http://localhost:8080/chatbot", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: userMessage.text,
-          }),
-        });
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Error response:', errorText);
-          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log('Response data:', data);
-        console.log('Images in response:', data.relevant_images);
-        const botMessage = {
-          sender: 'bot',
-          text: data.response,
-          images: data.relevant_images || []
-        };
-        console.log('Bot message with images:', botMessage);
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
-      } catch (error: any) {
-        console.error('Error sending message to chatbot:', error);
-        let errorMessage = 'Sorry, I could not get a response. Please try again.';
-        if (error.message.includes('No document is currently loaded')) {
-          errorMessage = 'Please upload and select a document first.';
-        }
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: 'bot', text: errorMessage },
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
+        return [...updated, { sender: "bot", text: data.response }];
+      });
+    } catch (error) {
+      console.error("Error fetching summary:", error);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "Sorry buddy 😅 recap failed. Try again." },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleSendMessage = async (customText?: string) => {
+    const finalText = (customText ?? input).trim();
+    if (!finalText || isLoading) return;
+
+    const userMessage: Message = { sender: "user", text: finalText };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+    setInput("");
+    setIsLoading(true);
+
+    setSelection({ text: finalText, page: 1, rect: null });
+
+    try {
+      if (!currentDocument) {
+        throw new Error("No document is currently loaded");
+      }
+
+      const sessionId = getSessionId();
+
+      const response = await fetch(
+        `${BACKEND_URL}/chatbot?sessionId=${sessionId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: finalText }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
+      }
+
+      const data = await response.json();
+
+      const botMessage: Message = {
+        sender: "bot",
+        text: data.response,
+        images: data.relevant_images || [],
+      };
+
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error: any) {
+      console.error("Error sending message to chatbot:", error);
+
+      let errorMessage = "Sorry buddy 😅 I couldn’t respond. Try again.";
+
+      if (error.message.includes("No document is currently loaded")) {
+        errorMessage = "📄 Please upload and Analyze a document first ✅";
+      }
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: errorMessage },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const quickActions = [
+    {
+      label: "1-Minute Recap",
+      icon: Sparkles,
+      onClick: handleGenerateSummary,
+    },
+    {
+      label: "Important Questions",
+      icon: FileText,
+      onClick: () =>
+        handleSendMessage(
+          "Give me 5 important exam questions from this PDF with answers."
+        ),
+    },
+    {
+      label: "Key Formulas",
+      icon: Wand2,
+      onClick: () =>
+        handleSendMessage("Extract important formulas + explain each briefly."),
+    },
+  ];
+
   return (
-    <div className="w-96 border-r border-border bg-card flex flex-col h-full">
+    <div className="w-96 border-r border-border bg-background flex flex-col h-full">
+      {/* Header */}
       <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold">PDF Chatbot</h2>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              msg.sender === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-          >
-            <div
-              className={`max-w-[70%] p-3 rounded-lg ${
-                msg.sender === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
-              }`}
-            >
-              <p>{msg.text}</p>
-              {msg.images && msg.images.length > 0 && (
-                <div className="mt-2 grid gap-2">
-                  {msg.images.map((image, imgIndex) => (
-                    <div key={imgIndex} className="relative">
-                      <img
-                        src={getImageUrl(image.path)}
-                        alt={image.caption || `Image from page ${image.page}`}
-                        className="rounded-md max-w-full h-auto cursor-pointer hover:opacity-90 border border-border"
-                        onError={(e) => {
-                          const imgElement = e.target as HTMLImageElement;
-                          console.error('Image failed to load:', imgElement.src);
-                          // Try loading without thumbnail
-                          if (imgElement.src.includes('_thumb')) {
-                            const newSrc = imgElement.src.replace('_thumb.', '.');
-                            console.log('Trying original image:', newSrc);
-                            imgElement.src = newSrc;
-                          }
-                        }}
-                        onClick={() => {
-                          if (setSelection) {
-                            setSelection({ text: '', page: image.page, rect: null });
-                          }
-                        }}
-                      />
-                      {image.caption && (
-                        <p className="text-sm text-muted-foreground mt-1">{image.caption}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              🎓 Study Chat
+            </h2>
+            <p className="text-xs text-muted-foreground truncate max-w-[250px]">
+              {currentDocument ? `📄 ${currentDocument.name}` : "No PDF selected"}
+            </p>
           </div>
-        ))}
+
+          <div className="text-xs px-2 py-1 rounded-full border border-border text-muted-foreground">
+            {isLoading ? "Thinking..." : "Ready ✅"}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {quickActions.map((btn, idx) => (
+            <Button
+              key={idx}
+              variant="secondary"
+              size="sm"
+              className="rounded-full text-xs"
+              disabled={isLoading || !currentDocument}
+              onClick={btn.onClick}
+            >
+              <btn.icon className="w-4 h-4 mr-2" />
+              {btn.label}
+            </Button>
+          ))}
+        </div>
       </div>
-      <div className="p-4 border-t border-border flex items-center gap-2">
-        <Input
-          placeholder="Ask a question about the PDF..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              handleSendMessage();
-            }
-          }}
-          className="flex-1"
-          disabled={isLoading}
-        />
-        <Button onClick={handleSendMessage} size="icon" disabled={isLoading}>
-          {isLoading ? '...' : <Send className="w-4 h-4" />}
-        </Button>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((msg, index) => {
+          const isUser = msg.sender === "user";
+
+          return (
+            <div
+              key={index}
+              className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[78%] rounded-2xl px-4 py-3 shadow-sm border ${
+                  isUser
+                    ? "bg-primary text-primary-foreground border-primary/20"
+                    : "bg-muted/60 text-foreground border-border"
+                }`}
+              >
+                {!isUser && (
+                  <p className="text-[11px] text-muted-foreground mb-1">
+                    IntelliPDF Tutor 🤖
+                  </p>
+                )}
+
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {msg.text}
+                </p>
+
+                {msg.images && msg.images.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    {msg.images.map((image, imgIndex) => (
+                      <div
+                        key={imgIndex}
+                        className="rounded-xl overflow-hidden border border-border bg-background"
+                      >
+                        <img
+                          src={getImageUrl(image.path)}
+                          alt={image.caption || `Image from page ${image.page}`}
+                          className="w-full h-auto cursor-pointer hover:opacity-90 transition"
+                          onClick={() =>
+                            setSelection({ text: "", page: image.page, rect: null })
+                          }
+                        />
+
+                        <div className="p-2">
+                          <p className="text-xs text-muted-foreground">
+                            📌 Page {image.page}{" "}
+                            {image.caption ? `• ${image.caption}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-border">
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Ask anything…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSendMessage();
+            }}
+            className="flex-1 rounded-full"
+            disabled={isLoading}
+          />
+
+          <Button
+            onClick={() => handleSendMessage()}
+            size="icon"
+            className="rounded-full"
+            disabled={isLoading || !input.trim()}
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

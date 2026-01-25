@@ -210,7 +210,7 @@ docker run -p 8080:8080 intellipdf
 
 ## ✅ Example Use Case
 
-1. Upload a large PDF (example: 200 pages)
+1. Upload a large PDF (example: 20-100 pages)
 2. IntelliPDF generates a quick recap
 3. Ask: **"Explain the main points in Unit 4"**
 4. Instantly get:

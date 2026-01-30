@@ -160,6 +160,7 @@ async def upload_new(sessionId: str = Form(...), file: UploadFile = File(...)):
 
 @app.post("/process")
 async def process_endpoint(sessionId: str = Form(...)):
+    start = time.time()
     if not sessionId:
         raise HTTPException(status_code=400, detail="sessionId is required")
 
@@ -176,16 +177,20 @@ async def process_endpoint(sessionId: str = Form(...)):
         pdf_dir=session_pdf_dir,
         output_current_path=session_current_doc_path
     )
-
+    end = time.time()
+    latency = end - start
+    print(f"Processing time: {end - start:.2f} seconds")
     return {
         "message": "Processing complete",
         "sessionId": sessionId,
+        "process_time_sec": round(latency, 3), 
         "output_file": str(session_current_doc_path).replace("\\", "/"),
     }
 
 
 @app.post("/chatbot", response_model=ChatbotResponse)
 async def chatbot_endpoint(sessionId: str = Query(...), query_data: ChatbotQuery = None):
+    start = time.time()
     if query_data is None:
         raise HTTPException(status_code=400, detail="Missing request body")
 
@@ -197,24 +202,35 @@ async def chatbot_endpoint(sessionId: str = Query(...), query_data: ChatbotQuery
             relevant_images=[]
         )
 
-    return get_chatbot_response(query_data.query, current_doc_path=session_current_doc)
-
+    result = get_chatbot_response(query_data.query, current_doc_path=session_current_doc)
+    end = time.time()
+    latency = end - start
+    result_dict = result.dict()
+    result_dict["response_time_sec"] = round(latency, 3)
+    return result_dict
 
 
 
 @app.get("/summary", response_model=ChatbotResponse)
 async def get_summary(sessionId: str = Query(...)):
+    start = time.time()
     session_current_doc = get_session_current_json(sessionId)
 
     if not session_current_doc.exists():
         return ChatbotResponse(response="Please upload and process a document first.")
 
-    return get_initial_summary(current_doc_path=session_current_doc)
+    result =  get_initial_summary(current_doc_path=session_current_doc)
 
-
+    end = time.time()
+    latency = end - start   
+    result_dict = result.dict()
+    result_dict["summary_time_sec"] = round(latency, 3)
+    print(f"Summary time: {latency:.2f} seconds")
+    return result_dict
 
 @app.post("/search")
 def search_endpoint(sessionId: str = Query(...), req: SearchRequest = None):
+    start = time.time()
     if req is None:
         raise HTTPException(status_code=400, detail="Missing request body")
 
@@ -251,7 +267,12 @@ def search_endpoint(sessionId: str = Query(...), req: SearchRequest = None):
             })
 
     results = sorted(results, key=lambda x: x["score"], reverse=True)[:req.top_k]
-    return {"results": results}
+    end = time.time()
+    latency_ms = (end - start) * 1000
+    print(f"Search time: {latency_ms:.2f} ms")
+    return {
+        "search_time_ms": round(latency_ms, 2),
+        "results": results}
 
 
 @app.delete("/delete/{filename}")

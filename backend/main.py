@@ -60,6 +60,13 @@ def process_pdfs(pdf_paths, output_path: Path):
             "image_statistics": image_stats,
         }
 
+        # ✅ Add stats here (safe defaults)
+        doc_data["stats"] = {
+            "total_sections": 0,
+            "total_images": len(images),
+            "total_snippets": 0
+        }
+
         if sections:
             sections_with_embeddings = embed_gen.embed_sections(sections)
 
@@ -88,6 +95,12 @@ def process_pdfs(pdf_paths, output_path: Path):
                     }
                 )
 
+        # ✅ Update stats AFTER section generation
+        doc_data["stats"]["total_sections"] = len(doc_data["sections"])
+        doc_data["stats"]["total_snippets"] = sum(
+            len(sec.get("snippets", [])) for sec in doc_data["sections"]
+        )
+
         all_docs_data.append(doc_data)
 
     output_json = {
@@ -100,6 +113,7 @@ def process_pdfs(pdf_paths, output_path: Path):
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output_json, f, indent=4, ensure_ascii=False)
+
 
 
 def process_all_pdfs(pdf_dir: Path, output_current_path: Path):

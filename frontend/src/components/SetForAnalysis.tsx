@@ -12,6 +12,7 @@ import { getSessionId } from "@/utils/session";
 export function SetForAnalysis() {
   const {
     addDocument,
+    removeDocument, // ✅ ADDED
     selectedAnalysisFiles,
     addSelectedAnalysisFile,
     removeSelectedAnalysisFile,
@@ -139,11 +140,15 @@ export function SetForAnalysis() {
 
         if (!res.ok) throw new Error("Failed to delete file from backend");
 
+        // ✅ Remove from analysis list
         removeSelectedAnalysisFile(fileId);
+
+        // ✅ ALSO remove from Document Library list
+        removeDocument(fileId);
 
         toast({
           title: "File deleted ✅",
-          description: "File removed from analysis set and backend.",
+          description: "File removed from analysis set and library.",
         });
       } catch (err: any) {
         toast({
@@ -153,7 +158,7 @@ export function SetForAnalysis() {
         });
       }
     },
-    [removeSelectedAnalysisFile, toast]
+    [removeSelectedAnalysisFile, removeDocument, toast]
   );
 
   // ✅ Process Analyze
@@ -221,53 +226,78 @@ export function SetForAnalysis() {
   };
 
   return (
-    <Card className="animate-fade-in">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
+    <Card className="animate-fade-in relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#050816]/90 via-[#0b1025]/80 to-[#120b2f]/90 shadow-2xl backdrop-blur-xl">
+      {/* ✨ glow orbs */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-60 w-60 rounded-full bg-cyan-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-60 w-60 rounded-full bg-fuchsia-500/20 blur-3xl" />
+
+      {/* ✨ tiny stars */}
+      <div className="pointer-events-none absolute inset-0 opacity-40">
+        <div className="absolute left-10 top-10 h-1 w-1 rounded-full bg-white shadow-[0_0_12px_2px_rgba(255,255,255,0.7)] animate-pulse" />
+        <div className="absolute right-16 top-14 h-[2px] w-[2px] rounded-full bg-cyan-300 shadow-[0_0_14px_3px_rgba(34,211,238,0.8)] animate-pulse" />
+        <div className="absolute left-1/2 top-8 h-[2px] w-[2px] rounded-full bg-purple-300 shadow-[0_0_14px_3px_rgba(216,180,254,0.85)] animate-pulse" />
+      </div>
+
+      <CardHeader className="relative pb-3">
+        <CardTitle className="text-xl font-extrabold tracking-tight text-white">
           Set New File for Analysis
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-white/60">
           Upload a single PDF for detailed analysis and insights
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="relative space-y-4">
         {/* ✅ Processing UI */}
         {isProcessing && (
-          <div className="relative group p-6 rounded-2xl border bg-gradient-to-r from-muted/40 to-muted/10 space-y-4 animate-fade-in shadow-md">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <div className="relative group overflow-hidden p-6 rounded-3xl border border-white/10 bg-white/5 space-y-4 animate-fade-in shadow-xl backdrop-blur-xl">
+            <div className="pointer-events-none absolute -top-16 -right-16 h-52 w-52 rounded-full bg-purple-500/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-16 -left-16 h-52 w-52 rounded-full bg-cyan-500/20 blur-3xl" />
+
+            <div className="relative flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-400/15 via-purple-500/15 to-fuchsia-500/15 flex items-center justify-center shadow">
+                <div className="w-6 h-6 rounded-full border-2 border-cyan-300 border-t-transparent animate-spin" />
+              </div>
+
               <div>
-                <p className="text-lg font-semibold">
+                <p className="text-lg font-extrabold text-white">
                   Processing your PDF... ✅
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/60">
                   Hover here to see details 👇
                 </p>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-background border text-base font-medium">
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-cyan-300 via-purple-400 to-fuchsia-400 animate-pulse" />
+            </div>
+
+            <div className="relative p-4 rounded-2xl bg-black/30 border border-white/10 text-base font-semibold text-white shadow-sm">
               {tips[tipIndex]}
             </div>
 
             <div className="absolute left-0 top-full mt-3 w-full hidden group-hover:block z-50">
-              <div className="p-6 rounded-2xl border bg-background shadow-2xl space-y-4">
-                <p className="text-xl font-bold">✨ What’s happening now?</p>
+              <div className="p-6 rounded-3xl border border-white/10 bg-gradient-to-br from-[#06091a] via-[#0b1025] to-[#140b33] shadow-2xl space-y-4 backdrop-blur-xl">
+                <p className="text-xl font-extrabold text-white">
+                  ✨ What’s happening now?
+                </p>
 
-                <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-2">
+                <ul className="list-disc pl-5 text-sm text-white/70 space-y-2">
                   <li>Extracting sections from your PDF</li>
                   <li>Generating embeddings for smart search</li>
                   <li>Preparing document insights</li>
                   <li>Getting everything ready for chatbot + recommendations</li>
                 </ul>
 
-                <div className="p-4 rounded-xl bg-muted border">
-                  <p className="text-sm font-semibold mb-1">📌 Current Tip:</p>
-                  <p className="text-base">{tips[tipIndex]}</p>
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-sm font-semibold mb-1 text-white/80">
+                    📌 Current Tip:
+                  </p>
+                  <p className="text-base text-white">{tips[tipIndex]}</p>
                 </div>
 
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/50">
                   ✅ This may take longer for big PDFs (100+ pages). Please wait...
                 </p>
               </div>
@@ -281,11 +311,13 @@ export function SetForAnalysis() {
             {selectedAnalysisFiles.map((file) => (
               <div
                 key={file.id}
-                className="flex items-center justify-between p-3 bg-muted/50 rounded-xl border border-border/50 hover:bg-muted transition-colors"
+                className="group flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 shadow-lg backdrop-blur-xl transition-all hover:-translate-y-[1px] hover:shadow-2xl"
               >
                 <div>
-                  <span className="text-sm font-medium">{file.name}</span>
-                  <span className="text-xs text-muted-foreground ml-2">
+                  <span className="block text-sm font-semibold text-white">
+                    {file.name}
+                  </span>
+                  <span className="text-xs text-white/60">
                     {formatFileSize(file.sizeBytes)}
                   </span>
                 </div>
@@ -296,6 +328,7 @@ export function SetForAnalysis() {
                   onClick={() => removeFile(file.id, file.url)}
                   aria-label="Remove file"
                   disabled={isProcessing}
+                  className="rounded-xl border border-white/10 bg-white/5 text-white/80 hover:bg-red-500/10 hover:text-red-300"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -312,7 +345,7 @@ export function SetForAnalysis() {
                 onClick={() =>
                   document.getElementById("analysis-file-input")?.click()
                 }
-                className="flex-1 hover-scale"
+                className="flex-1 rounded-2xl border border-white/10 bg-white/5 text-white shadow-lg hover:shadow-xl hover:bg-white/10 transition-all"
                 variant="secondary"
                 size="sm"
                 disabled={isProcessing}
@@ -323,7 +356,7 @@ export function SetForAnalysis() {
               <Button
                 variant="outline"
                 onClick={handleClear}
-                className="flex-1 hover-scale"
+                className="flex-1 rounded-2xl border border-white/10 bg-white/5 text-white/80 shadow-lg hover:shadow-xl hover:bg-red-500/10 hover:text-red-300 transition-all"
                 size="sm"
                 disabled={isProcessing}
               >
@@ -333,7 +366,7 @@ export function SetForAnalysis() {
 
             <Button
               onClick={handleAnalyze}
-              className="w-full hover-scale"
+              className="w-full rounded-2xl bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 text-white font-bold shadow-[0_0_35px_rgba(168,85,247,0.45)] hover:shadow-[0_0_55px_rgba(34,211,238,0.45)] transition-all hover:-translate-y-[1px]"
               size="lg"
               disabled={isProcessing}
             >
@@ -345,7 +378,7 @@ export function SetForAnalysis() {
             onClick={() =>
               document.getElementById("analysis-file-input")?.click()
             }
-            className="w-full hover-scale"
+            className="w-full rounded-2xl border border-white/10 bg-white/5 text-white shadow-lg hover:bg-white/10 hover:shadow-xl transition-all"
             variant="secondary"
             disabled={isProcessing}
           >

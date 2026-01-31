@@ -88,7 +88,13 @@ export function InsightsModal({ isOpen, onClose }: InsightsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden p-0 border-0 bg-transparent shadow-none">
+      <DialogContent className="
+  max-w-5xl max-h-[85vh] overflow-hidden p-0 border-0 bg-transparent shadow-none
+  [&>button]:text-white
+  [&>button]:hover:text-white
+  [&>button]:opacity-100
+">
+
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl shadow-2xl">
           <div className="absolute inset-0 opacity-40 pointer-events-none">
             <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl" />

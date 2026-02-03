@@ -1,19 +1,46 @@
 fastapi
 uvicorn
 pydantic
-google-generativeai
-google-cloud-texttospeech
 python-dotenv
-protobuf
-sarvamai
-scikit-learn
-numpy
-sentence-transformers
-nltk
-transformers
-torch
-Pillow
+google-generativeai
+requests
 PyMuPDF
+Pillow
+numpy
+nltk
+sentence-transformers
+transformers
+torch --index-url https://download.pytorch.org/whl/cpu
 pytesseract
 opencv-python-headless
-tensorflow
+
+
+
+# fastapi
+# uvicorn
+# pydantic
+# python-dotenv
+
+# # Gemini
+# google-generativeai
+
+# # PDF processing
+# PyMuPDF
+# Pillow
+
+# # NLP & Embeddings
+# torch
+# transformers
+# sentence-transformers
+# numpy
+# nltk
+
+# # OCR
+# pytesseract
+# opencv-python-headless
+
+# # Image AI
+# tensorflow
+
+# # Utilities
+# requests

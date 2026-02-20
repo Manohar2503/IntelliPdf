@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import json
 import numpy as np
+import hashlib
 import google.generativeai as genai
 from dotenv import load_dotenv
 from src.summarizer import DocumentSummarizer
@@ -11,7 +12,11 @@ from src.singletons import embedder
 
 load_dotenv()
 
+# ✅ Enable hybrid pipeline for research-grade summarization
 doc_summarizer = DocumentSummarizer()
+print(doc_summarizer.get_hybrid_pipeline_status())
+print("🔥 HYBRID PIPELINE READY 🔥")
+
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
@@ -153,10 +158,46 @@ def get_initial_summary(current_doc_path: Optional[Path] = None) -> ChatbotRespo
         all_sections.extend(doc.get("sections", []))
 
     try:
+        print(f"[DEBUG] Loaded {len(all_sections)} sections for summarization")
+        print(f"[DEBUG] Hybrid pipeline enabled: {doc_summarizer.use_hybrid_pipeline}")
+        print(f"[DEBUG] Hybrid pipeline initialized: {doc_summarizer.hybrid_pipeline is not None}")
+
         summary_data = doc_summarizer.summarize_document(all_sections)
+        print(f"[DEBUG] Summary data generated: {list(summary_data.keys())}")
+
+        # Save per-document summary files under session summaries/
+        try:
+            if current_doc_path is not None and current_doc_path.exists():
+                # current_doc.json path: .../sessions/{sessionId}/output/current_doc.json
+                session_dir = current_doc_path.parent.parent
+                summaries_dir = session_dir / "summaries"
+                summaries_dir.mkdir(parents=True, exist_ok=True)
+
+                from datetime import datetime
+
+                for doc in docs:
+                    doc_id = doc.get("doc_id") or hashlib.md5(json.dumps(doc).encode("utf-8")).hexdigest()
+                    out_path = summaries_dir / f"{doc_id}_summary.json"
+                    payload = {
+                        "doc_id": doc_id,
+                        "title": doc.get("title"),
+                        "generated_at": datetime.utcnow().isoformat() + "Z",
+                        "mode": "hybrid" if doc_summarizer.use_hybrid_pipeline else "fast",
+                        "summary": summary_data,
+                    }
+                    with open(out_path, "w", encoding="utf-8") as f:
+                        json.dump(payload, f, indent=2, ensure_ascii=False)
+                    print(f"[INFO] Saved summary to {out_path}")
+        except Exception as e:
+            print(f"[WARN] Failed to save summary files: {e}")
+
         msg = doc_summarizer.generate_initial_message(summary_data)
+        print(f"[DEBUG] Initial message generated, length: {len(msg)}")
         return ChatbotResponse(response=msg, is_summary=True)
-    except:
+    except Exception as e:
+        print(f"[ERROR] Summary generation failed: {e}")
+        import traceback
+        traceback.print_exc()
         return ChatbotResponse(
             response="Loaded document, but summary generation failed.",
             is_summary=True

@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-02-20T18:09:28.085786Z",
+  "session_id": "4efbe859-6f43-430e-88cc-e5fe75377f4e",
+  "document_stats": {
+    "sections": 458,
+    "reference_chars": 648,
+    "reference_words": 95
+  },
+  "execution_time": {
+    "fast_seconds": 0.03053736686706543,
+    "hybrid_seconds": 36.0024631023407
+  },
+  "output_stats": {
+    "fast_chars": 3223,
+    "fast_words": 530,
+    "hybrid_chars": 2696,
+    "hybrid_words": 409
+  },
+  "rouge_scores": {
+    "fast": {
+      "rouge1": 0.275290215588723,
+      "rouge2": 0.1930116472545757,
+      "rougeL": 0.17247097844112771
+    },
+    "hybrid": {
+      "rouge1": 0.37944664031620556,
+      "rouge2": 0.36507936507936506,
+      "rougeL": 0.37944664031620556
+    }
+  },
+  "fast_summary": "SDLC is a systematic process for building software that ensures the quality and correctness of the software built . The system development should be complete in the pre-defined time frame and cost . SDLC consists of a detailed plan which explains how to plan, build, and maintain specific software . The output of the requirement phase is a collection of things that are required, and the design phase gives the way to accomplish these requirements . The next step is to implement the design into the",
+  "hybrid_summary": "of agile software development. Software Development life cycle (SDLC): SDLC stands for Software Development Life Cycle and is also referred to as the Application Development life cycle. SDLC is a systematic process for building software that ensures the quality and correctness of the software built. SDLC process aims to produce high-quality software that meets customer expectations. The system development should be complete in the pre-defined time frame SDLC consists of a detailed plan which exp",
+  "bertscore_scores": {
+    "fast": {
+      "precision": 0.8162943124771118,
+      "recall": 0.8913035988807678,
+      "f1": 0.8521514534950256
+    },
+    "hybrid": {
+      "precision": 0.8455197811126709,
+      "recall": 0.9568689465522766,
+      "f1": 0.8977549076080322
+    }
+  }
+}

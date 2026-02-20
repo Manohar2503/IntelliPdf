@@ -6,12 +6,12 @@ interface SummaryDisplayProps {
     brief_summary: string;
     section_summaries?: { heading: string; summary: string }[];
   } | null;
-  onClose: () => void; // Function to close the summary display
+  onClose: () => void; 
 }
 
 export function SummaryDisplay({ summary, onClose }: SummaryDisplayProps) {
   if (!summary) {
-    return null; // Or a loading spinner, or a message
+    return null; 
   }
 
   return (

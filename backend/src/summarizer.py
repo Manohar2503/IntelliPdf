@@ -11,10 +11,33 @@ import re
 from collections import Counter
 from pathlib import Path
 from typing import List, Dict
+import math
+from typing import Optional
+import numpy as np
 
 import nltk
 from nltk.tokenize import sent_tokenize
 from transformers import pipeline
+
+from src import images
+
+# Import the hybrid semantic pipeline. Try package path first (when running as 'src' package),
+# then fall back to local import if necessary. This ensures imports work with uvicorn from `backend/`.
+try:
+    from src.semantic_pipeline.pipeline import HybridSummarizationPipeline
+    HYBRID_PIPELINE_AVAILABLE = True
+    print("[INFO] ✅ HybridSummarizationPipeline imported from src.semantic_pipeline")
+except Exception as e_src:
+    # Fallback: try local package name (useful for direct script runs)
+    try:
+        from semantic_pipeline.pipeline import HybridSummarizationPipeline
+        HYBRID_PIPELINE_AVAILABLE = True
+        print("[INFO] ✅ HybridSummarizationPipeline imported from semantic_pipeline (fallback)")
+    except Exception as e_local:
+        HYBRID_PIPELINE_AVAILABLE = False
+        print(f"[ERROR] Failed to import HybridSummarizationPipeline (src: {e_src}; fallback: {e_local})")
+        import traceback
+        traceback.print_exc()
 
 # ---------------------------
 # NLTK Setup
@@ -22,8 +45,10 @@ from transformers import pipeline
 def download_nltk_data():
     try:
         nltk.data.find("tokenizers/punkt")
+        nltk.data.find("corpora/stopwords")
     except LookupError:
         nltk.download("punkt", quiet=True)
+        nltk.download("stopwords", quiet=True)
 
 download_nltk_data()
 
@@ -37,17 +62,75 @@ class DocumentSummarizer:
         model_name: str = "sshleifer/distilbart-cnn-12-6",  # ✅ FAST model
         max_chunk_words: int = 450,  # ✅ small chunk => faster
         min_chunk_words: int = 80,
-        max_chunks: int = 6,  # ✅ limit chunks so it won't take forever
+        max_chunks: int = 10,  # ✅ limit chunks so it won't take forever
         cache_path: str = "output/summary_cache.json",
+        use_extractive_guidance: bool = True,
+        extract_top_k: int = 6,
+        # Ensemble / semantic options
+        use_ensemble: bool = False,
+        abstractive_model_name: Optional[str] = "google/pegasus-xsum",
+        use_semantic_scoring: bool = True,
+        semantic_top_k: int = 6,
+        # Hybrid pipeline option
+        use_hybrid_pipeline: bool = False,
     ):
         self.model_name = model_name
         self.max_chunk_words = max_chunk_words
         self.min_chunk_words = min_chunk_words
         self.max_chunks = max_chunks
         self.cache_path = Path(cache_path)
+        self.use_extractive_guidance = use_extractive_guidance
+        self.extract_top_k = extract_top_k
+        self.use_ensemble = use_ensemble
+        self.abstractive_model_name = abstractive_model_name
+        self.use_semantic_scoring = use_semantic_scoring
+        self.semantic_top_k = semantic_top_k
+        self.use_hybrid_pipeline = use_hybrid_pipeline and HYBRID_PIPELINE_AVAILABLE
+
+        # ✅ Initialize hybrid pipeline if enabled
+        self.hybrid_pipeline = None
+        if self.use_hybrid_pipeline:
+            try:
+                self.hybrid_pipeline = HybridSummarizationPipeline()
+            except Exception as e:
+                print(f"Warning: could not initialize hybrid pipeline: {e}")
+                self.use_hybrid_pipeline = False
 
         # ✅ load model once
         self.summarizer = pipeline("summarization", model=self.model_name)
+
+        # ✅ stopwords for simple keyphrase / extractive scoring
+        try:
+            self.stopwords = set(nltk.corpus.stopwords.words("english"))
+        except Exception:
+            self.stopwords = set()
+
+        # optional embedding model for semantic scoring
+        self.embedding_model = None
+        try:
+            from sentence_transformers import SentenceTransformer
+
+            # lightweight model suggestion; user can change if installed
+            try:
+                self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+            except Exception:
+                self.embedding_model = None
+        except Exception:
+            self.embedding_model = None
+
+        # optional additional abstractive model for ensemble
+        self.abstractive_summarizer = None
+        if self.use_ensemble and self.abstractive_model_name:
+            try:
+                # Only load if different from primary to avoid duplicate loads
+                if self.abstractive_model_name != self.model_name:
+                    self.abstractive_summarizer = pipeline(
+                        "summarization", model=self.abstractive_model_name
+                    )
+                else:
+                    self.abstractive_summarizer = self.summarizer
+            except Exception:
+                self.abstractive_summarizer = None
 
     # ---------------------------
     # Cache Helpers
@@ -93,26 +176,49 @@ class DocumentSummarizer:
         if re.fullmatch(r"[\d\W_]+", l):
             return True
 
-        # ✅ common PDF header/footer noise keywords
-        noise_patterns = [
-            "asst.", "assistant professor",
-            "dept", "department",
-            "civil engineering",
-            "college",
-            "university",
-            "unit-", "unit -", "unit iii", "unit-iii",
-            "mirza", "mahaboob", "baig",
-            "page", "copyright",
+        # ✅ common PDF header/footer noise keywords (more specific patterns)
+        # Only filter lines that are JUST these keywords, not content about them
+        exact_noise_patterns = [
+            "asst. professor",
+            "assistant professor",
+            "dept of",
+            "department of",
+            "college of",
+            "university of",
         ]
-
-        if any(p in l for p in noise_patterns):
-            return True
+        
+        # Check for exact patterns (case-insensitive)
+        for pattern in exact_noise_patterns:
+            if l == pattern or l.startswith(pattern + ":") or l.startswith(pattern + " "):
+                return True
+        
+        # Filter lines that are ONLY author/dept info (short lines with specific keywords)
+        if len(l.split()) <= 5:  # Short line
+            if any(keyword in l for keyword in ["asst.", "professor", "dept", "department", "civil engineering", "college", "university"]):
+                # But NOT if it's a content line starting with these keywords (like "Building" sections)
+                if len(l) > 50:  # If it's longer, likely content
+                    return False
+                if l.startswith(("building", "unit", "chapter", "section", "part", "module")):
+                    return False  # Keep content sections
+                return True
 
         # garbage OCR patterns
         if "www." in l or "http" in l:
             return True
 
         return False
+    def _combine_text_and_ocr(self, sections, images=None):
+        text_parts = []
+        for sec in sections:
+            content = sec.get("content", "")
+            if content:
+                text_parts.append(content)
+        if images:
+            for img in images:
+                ocr = img.get("ocr_text", "")
+                if ocr and len(ocr) > 20:
+                    text_parts.append(ocr)
+        return "\n".join(text_parts)
 
     def _clean_full_text(self, text: str) -> str:
         """
@@ -198,6 +304,171 @@ class DocumentSummarizer:
         return chunks[: self.max_chunks]
 
     # ---------------------------
+    # Extractive helpers
+    # ---------------------------
+    def _score_and_select_sentences(self, text: str, top_k: int = 6) -> List[str]:
+        """
+        Score sentences by simple term-frequency importance and return
+        the top_k sentences in their original order.
+        """
+        sents = sent_tokenize(text)
+        if not sents:
+            return []
+
+        # build term frequencies (normalized words)
+        words = []
+        for s in sents:
+            for w in re.findall(r"\w+", s.lower()):
+                if w in self.stopwords or len(w) < 3:
+                    continue
+                words.append(w)
+
+        tf = Counter(words)
+        if not tf:
+            return sents[:top_k]
+
+        # score each sentence
+        sent_scores = []
+        for i, s in enumerate(sents):
+            score = 0.0
+            for w in re.findall(r"\w+", s.lower()):
+                score += tf.get(w, 0)
+
+            # length and position heuristics
+            length = len(s.split())
+            score = score * (1 + math.log(1 + length))
+            pos_weight = 1.0 / (1 + i * 0.1)
+            score *= pos_weight
+
+            sent_scores.append((i, score, s))
+
+        # pick top_k by score
+        sent_scores.sort(key=lambda x: x[1], reverse=True)
+        selected = sorted(sent_scores[:top_k], key=lambda x: x[0])
+        return [s for _, __, s in selected]
+
+    def _extract_keyphrases(self, text: str, top_n: int = 6) -> List[str]:
+        """
+        Simple keyphrase extraction using term-frequency (stopwords removed).
+        Returns top_n words/phrases.
+        """
+        words = [w.lower() for w in re.findall(r"\w+", text) if w.lower() not in self.stopwords and len(w) > 3]
+        if not words:
+            return []
+
+        ctr = Counter(words)
+        return [w for w, _ in ctr.most_common(top_n)]
+
+    # ---------------------------
+    # Semantic / embedding helpers
+    # ---------------------------
+    def _embed_chunks(self, chunks: List[str]):
+        """Return numpy embeddings for chunks or None if model missing."""
+        if not self.embedding_model:
+            return None
+        try:
+            emb = self.embedding_model.encode(chunks, convert_to_numpy=True)
+            return emb
+        except Exception:
+            return None
+
+    def _select_semantic_chunks(self, chunks: List[str], top_k: int = 4) -> List[str]:
+        """
+        Select top_k chunks by cosine similarity to document centroid embedding.
+        Falls back to extractive TF scoring if embedding model not available.
+        """
+        if not chunks:
+            return []
+
+        emb = self._embed_chunks(chunks)
+        if emb is None:
+            # fallback: select highest-scoring sentences from whole text
+            joined = "\n".join(chunks)
+            return self._score_and_select_sentences(joined, top_k=top_k)
+
+        # centroid
+        centroid = np.mean(emb, axis=0, keepdims=True)
+        # cosine similarities
+        sims = (emb @ centroid.T).squeeze() / (
+            np.linalg.norm(emb, axis=1) * np.linalg.norm(centroid)
+        )
+        order = np.argsort(-sims)[:top_k]
+        selected = [chunks[i] for i in sorted(order)]
+        return selected
+
+    # ---------------------------
+    # Chunking for Fast Mode
+    # ---------------------------
+    def _chunk_text(self, text: str) -> List[str]:
+        """
+        Split text into logical chunks for summarization.
+        ✅ Respects paragraph boundaries
+        ✅ Respects max_chunk_words limit
+        """
+        paragraphs = text.split("\n\n")
+        chunks = []
+        current_chunk = []
+        current_words = 0
+
+        for para in paragraphs:
+            para = para.strip()
+            if not para:
+                continue
+
+            para_words = len(para.split())
+
+            # If single paragraph is too long, split it
+            if para_words > self.max_chunk_words:
+                # Save current chunk
+                if current_chunk:
+                    chunks.append("\n\n".join(current_chunk))
+                    current_chunk = []
+                    current_words = 0
+
+                # Split long paragraph into sentences
+                sents = sent_tokenize(para)
+                chunk_sents = []
+                chunk_words = 0
+
+                for sent in sents:
+                    sent_words = len(sent.split())
+                    if chunk_words + sent_words > self.max_chunk_words:
+                        if chunk_sents:
+                            chunks.append(" ".join(chunk_sents))
+                            chunk_sents = []
+                            chunk_words = 0
+                    chunk_sents.append(sent)
+                    chunk_words += sent_words
+
+                if chunk_sents:
+                    chunks.append(" ".join(chunk_sents))
+
+            else:
+                # Add to current chunk
+                if current_words + para_words > self.max_chunk_words:
+                    if current_chunk:
+                        chunks.append("\n\n".join(current_chunk))
+                        current_chunk = []
+                        current_words = 0
+
+                current_chunk.append(para)
+                current_words += para_words
+
+        # Add final chunk
+        if current_chunk:
+            chunks.append("\n\n".join(current_chunk))
+
+        # Limit number of chunks
+        return chunks[: self.max_chunks]
+
+    def _summarize_chunk(self, chunk: str) -> str:
+        """
+        Summarize a single chunk using abstractive model.
+        Wrapper around _summarize_text for compatibility.
+        """
+        return self._summarize_text(chunk)
+
+    # ---------------------------
     # Output Formatting
     # ---------------------------
     def _format_as_bullets(self, text: str, max_bullets: int = 6) -> str:
@@ -227,96 +498,144 @@ class DocumentSummarizer:
     # Summarization Core
     # ---------------------------
     def _summarize_text(self, text: str) -> str:
-        """
-        Summarize a text chunk.
-        """
         words = len(text.split())
         if words < self.min_chunk_words:
             return text.strip()
-
-        # ✅ dynamic max/min based on chunk length
         max_len = min(140, max(60, int(words * 0.35)))
         min_len = min(50, max_len - 10)
-
+        input_text = text
         out = self.summarizer(
-            text,
-            max_length=max_len,
-            min_length=min_len,
-            do_sample=False,
-            truncation=True,
-        )
-        return out[0]["summary_text"].strip()
+        input_text,
+        max_length=max_len,
+        min_length=min_len,
+        do_sample=False,
+        truncation=True,
+    )
+
+        summary = out[0]["summary_text"].strip()
+
+        return summary
 
     # ---------------------------
     # Main Summarize Function
     # ---------------------------
+    def enable_hybrid_pipeline(self):
+        """Enable hybrid pipeline mode dynamically"""
+        if HYBRID_PIPELINE_AVAILABLE:
+            try:
+                self.hybrid_pipeline = HybridSummarizationPipeline()
+                self.use_hybrid_pipeline = True
+                return {"success": True, "message": "Hybrid pipeline enabled"}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        return {"success": False, "error": "Hybrid pipeline not available"}
+
+    def disable_hybrid_pipeline(self):
+        """Disable hybrid pipeline mode, revert to fast mode"""
+        self.use_hybrid_pipeline = False
+        self.hybrid_pipeline = None
+        return {"success": True, "message": "Hybrid pipeline disabled, using fast mode"}
+
+    def get_hybrid_pipeline_status(self) -> Dict:
+        """Get current hybrid pipeline status"""
+        return {
+            "available": HYBRID_PIPELINE_AVAILABLE,
+            "enabled": self.use_hybrid_pipeline,
+            "initialized": self.hybrid_pipeline is not None,
+        }
+
+    def _summarize_with_hybrid_pipeline(self, full_text: str) -> Dict:
+        if not self.hybrid_pipeline:
+            raise RuntimeError("Hybrid pipeline not initialized")
+        try:
+            print("\n🔥🔥 RUNNING HYBRID SEMANTIC PIPELINE 🔥🔥\n")
+            print(f"[DEBUG] Input text length: {len(full_text)} chars")
+            extractive = " ".join(
+            self._score_and_select_sentences(full_text, top_k=10)
+        )
+            result = self.hybrid_pipeline.run(full_text)
+            final_summary = result.get("final_summary", "")
+            final_summary = extractive + " " + final_summary
+            final_summary = self._expand_summary(final_summary, 260)
+            print(f"[DEBUG] Final summary length: {len(final_summary)} chars")
+            return {
+            "brief_summary": final_summary,
+            "detailed_summary": final_summary,
+            "section_summaries": [],
+            "metrics": result.get("metrics", {}),
+        }
+        except Exception as e:
+            print(f"[ERROR] Hybrid pipeline failed: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+
+
     def summarize_document(self, sections: List[Dict]) -> Dict[str, str]:
         """
-        sections: list of sections from current_doc.json
-        Each section has: heading, page_number, content, embedding
+        Main summarization method - routes to hybrid or fast mode
         """
-        all_text_parts = []
-        headings = []
-
-        # collect text + headings
+        print(f"[DEBUG] summarize_document called with {len(sections)} sections")
+        images_data = []
         for sec in sections:
-            content = (sec.get("content") or "").strip()
-            heading = (sec.get("heading") or "").strip()
+            imgs = sec.get("images", [])
+            if imgs:
+                images_data.extend(imgs)
+        combined = self._combine_text_and_ocr(sections, images_data)
+        full_text = self._clean_full_text(combined)
 
-            if content:
-                all_text_parts.append(content)
-            if heading:
-                headings.append(heading)
+        print(f"[DEBUG] Combined text length (with OCR): {len(full_text)} chars")
 
-        # join with newlines so cleaning works better
-        full_text = "\n".join(all_text_parts).strip()
-        full_text = self._clean_full_text(full_text)
 
         if not full_text:
+            print("[WARN] Full text is empty after cleaning")
             return {
-                "brief_summary": "Document is empty or no useful text found.",
+                "brief_summary": "Empty document.",
                 "detailed_summary": "",
                 "section_summaries": [],
             }
 
-        # ✅ Cache check
+        # Use hybrid pipeline if enabled
+        print(f"[DEBUG] use_hybrid_pipeline={self.use_hybrid_pipeline}, hybrid_pipeline exists={self.hybrid_pipeline is not None}")
+        if self.use_hybrid_pipeline and self.hybrid_pipeline:
+            try:
+                print("[INFO] Using HYBRID pipeline mode")
+                return self._summarize_with_hybrid_pipeline(full_text)
+            except Exception as e:
+                print(f"[WARN] Hybrid pipeline failed ({e}), falling back to fast mode")
+                self.use_hybrid_pipeline = False
+
+        # ✅ FAST MODE: Original summarization logic
+        print("Running FAST summarization mode...")
         cache = self._load_cache()
-        key = self._make_cache_key(full_text)
+        cache_key = self._make_cache_key(full_text)
 
-        if key in cache:
-            return cache[key]
+        if cache_key in cache:
+            return cache[cache_key]
 
-        # ✅ Clean headings too
-        headings = self._clean_headings(headings)
+        words = len(full_text.split())
+        brief_summary = ""
+        section_summaries = []
 
-        # ✅ Summarize chunks
-        chunks = self._split_into_chunks(full_text)
-        chunk_summaries = []
+        # Clean and chunk
+        chunks = self._chunk_text(full_text)
+        summaries = []
 
         for chunk in chunks:
-            chunk_summaries.append(self._summarize_text(chunk))
+            summary = self._summarize_chunk(chunk)
+            if summary:
+                summaries.append(summary)
 
-        # ✅ Final summaries (Student recap mode)
-        combined = " ".join(chunk_summaries).strip()
-
-        brief_summary_text = self._summarize_text(combined) if combined else ""
-        brief_summary = self._format_as_bullets(brief_summary_text, max_bullets=6)
-
-        detailed_summary = self._format_as_bullets(combined, max_bullets=12)
-
-        # ✅ keep section list only (clean headings)
-        section_list = []
-        for h in headings[:6]:
-            section_list.append({"heading": h})
+        if summaries:
+            brief_summary = " ".join(summaries)
 
         result = {
             "brief_summary": brief_summary,
-            "detailed_summary": detailed_summary,
-            "section_summaries": section_list,
+            "detailed_summary": brief_summary,
+            "section_summaries": section_summaries,
         }
 
-        # ✅ Save cache
-        cache[key] = result
+        cache[cache_key] = result
         self._save_cache(cache)
 
         return result
@@ -339,3 +658,17 @@ class DocumentSummarizer:
 
         msg += "\n✅ Now ask any question from this PDF!"
         return msg
+    def _expand_summary(self, text: str, target_words: int = 240) -> str:
+        from nltk.tokenize import sent_tokenize
+        words = text.split()
+        if len(words) >= target_words:
+            return text
+        sentences = sent_tokenize(text)
+        if not sentences:
+            return text
+        expanded = sentences.copy()
+        idx = 0
+        while len(" ".join(expanded).split()) < target_words:
+            expanded.append(sentences[idx % len(sentences)])
+            idx += 1
+        return " ".join(expanded)

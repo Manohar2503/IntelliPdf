@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-02-22T09:08:04.139282Z",
+  "session_id": "4efbe859-6f43-430e-88cc-e5fe75377f4e",
+  "document_stats": {
+    "sections": 30,
+    "reference_chars": 1064,
+    "reference_words": 149
+  },
+  "execution_time": {
+    "fast_seconds": 0.02923583984375,
+    "hybrid_seconds": 24.878114461898804
+  },
+  "output_stats": {
+    "fast_chars": 758,
+    "fast_words": 112,
+    "hybrid_chars": 3828,
+    "hybrid_words": 582
+  },
+  "rouge_scores": {
+    "fast": {
+      "rouge1": 0.30927835051546393,
+      "rouge2": 0.20069204152249134,
+      "rougeL": 0.24742268041237117
+    },
+    "hybrid": {
+      "rouge1": 0.3819095477386935,
+      "rouge2": 0.3324937027707809,
+      "rougeL": 0.3291457286432161
+    }
+  },
+  "fast_summary": "Artificial Intelligence (AI) is a key driver of global economic growth, productivity, and innovation . It is also a critical enabler of India’s national visions of Atmanirbhar Bharat and Viksit Bharat Recogni. Discussions wiLL focus –on enhancing curricuLa based on model frameworks and industry inputs on emerging roLes . Participants wiLL examine interdiscipLinary learning and upskitUng to ’ prepare for careers across the Al value chain . Discussion expLores how HEIs can transLate campus-based A",
+  "hybrid_summary": "2-4/2026(CPP-II) (C.175586) 9 HM, 1947/ 29th January, 2026 Subject: Organization of Pre-Summit Activities for Al Impact Summit 2026-reg. XRVhTHORTr/HdKT, Artificial Intelligence (AI) is a key driver of global economic growth, productivity, and innovation. It is also a critical enabler of India’s national visions ofAtmanirbhar Bharat and Viksit Bharat Recogni\n(f§Tew +TT©q, Tm n=En) (Ministry of Education, Govt. 2-4/2026(CPP-II) (C.175586) 9 HM, 1947/ 29th January, 2026 Subject: Organization of Pr",
+  "bertscore_scores": {
+    "fast": {
+      "precision": 0.8072155714035034,
+      "recall": 0.8103818893432617,
+      "f1": 0.8087956309318542
+    },
+    "hybrid": {
+      "precision": 0.8379560112953186,
+      "recall": 0.8920088410377502,
+      "f1": 0.8641380071640015
+    }
+  }
+}

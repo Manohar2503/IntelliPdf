@@ -1,0 +1,7 @@
+[
+  {
+    "id": "sample1",
+    "text": "This is a sample document. It contains several sentences about machine learning and natural language processing. The goal is to provide a concise summary. The dataset contains examples and experiments.",
+    "summary": "A sample document about machine learning and NLP with examples and experiments."
+  }
+]

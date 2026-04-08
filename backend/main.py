@@ -117,10 +117,7 @@ def process_pdfs(pdf_paths, output_path: Path):
 
 
 def process_all_pdfs(pdf_dir: Path, output_current_path: Path):
-    """
-    ✅ Process latest PDF in pdf_dir
-    ✅ Save output to output_current_path
-    """
+   
     pdf_dir = Path(pdf_dir)
     output_current_path = Path(output_current_path)
     output_current_path.parent.mkdir(parents=True, exist_ok=True)

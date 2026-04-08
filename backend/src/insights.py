@@ -7,9 +7,7 @@ from pydantic import BaseModel
 from typing import List
 import google.generativeai as genai
 
-# ====================================
-# GEMINI-ONLY LLM WRAPPER (Direct SDK)
-# ====================================
+
 def get_llm_response(messages):
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:

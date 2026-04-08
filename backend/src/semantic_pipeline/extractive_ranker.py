@@ -26,16 +26,11 @@ class ExtractiveRanker:
         sents = self._sentences_from_paragraphs(paragraphs)
         if not sents:
             return []
-        # TF-IDF scores
         tfidf = self.tf_vectorizer.fit_transform(sents)
         tf_scores = np.asarray(tfidf.sum(axis=1)).ravel()
-
-        # Semantic relevance: similarity to document mean embedding
         emb = self.embedder.encode(sents, convert_to_numpy=True, show_progress_bar=False)
         doc_vec = emb.mean(axis=0, keepdims=True)
         sem_scores = cosine_similarity(emb, doc_vec).ravel()
-
-        # Combine scores (normalized)
         if tf_scores.max() > 0:
             tf_norm = (tf_scores - tf_scores.min()) / (tf_scores.max() - tf_scores.min())
         else:

@@ -33,17 +33,13 @@ class StructuralCleaner:
             out.append(s)
 
         return out
-
     def _is_garbage(self, line: str) -> bool:
         if not line.strip():
             return True
         return TextRepair.is_noise(line, threshold=0.55)
-
     def clean(self, raw_text: str) -> List[str]:
-
         if not raw_text:
             return []
-
         t = TextRepair.normalize_text(raw_text)
         t = self._remove_headers_footers(t)
         t = re.sub(r"(?<=\w)-\s*\n\s*(?=\w)", "", t)

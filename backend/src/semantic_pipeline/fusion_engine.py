@@ -61,21 +61,14 @@ class FusionEngine:
 
         return [sentences[i] for i in keep]
 
-    def merge(
-        self,
-        candidate_summaries: List[Dict[str, str]],
-        extractive_summary: str = None,
+    def merge(self,candidate_summaries: List[Dict[str, str]],extractive_summary: str = None,
     ) -> str:
-
         all_sents = []
         all_meta = []
         position = 0
-
         for cand in candidate_summaries:
-
             if not cand:
                 continue
-
             for model_name, txt in cand.items():
                 if txt:
                     for sent in self._split_sentences(txt):
@@ -86,7 +79,6 @@ class FusionEngine:
                             "position": position,
                         })
                         position += 1
-
         if extractive_summary:
             for sent in self._split_sentences(extractive_summary):
                 all_sents.append(sent)
@@ -96,22 +88,15 @@ class FusionEngine:
                     "position": position,
                 })
                 position += 1
-
         unique_sents = self._dedupe_sentences(all_sents)
-
         if not unique_sents:
             return ""
-
         meta_map = {self._normalized_signature(s): m for s, m in zip(all_sents, all_meta)}
         emb = self.embedder.encode(unique_sents, convert_to_numpy=True, show_progress_bar=False)
-
         doc_vec = emb.mean(axis=0, keepdims=True)
         sims = cosine_similarity(emb, doc_vec).ravel()
-
         scored = []
-
         for i, sent in enumerate(unique_sents):
-
             length_bonus = min(len(sent.split()) / 20, 1.0)
             sim_score = sims[i]
             sig = self._normalized_signature(sent)
@@ -119,9 +104,7 @@ class FusionEngine:
             extractive_bonus = 0.08 if meta["is_extractive"] else 0.0
             score = sim_score * 0.72 + length_bonus * 0.2 + extractive_bonus
             scored.append((score, meta["position"], sent))
-
         scored.sort(key=lambda x: x[0], reverse=True)
-
         selected = []
         word_budget = max(90, min(220, int(sum(len(s.split()) for s in unique_sents) * 0.55)))
         total_words = 0
@@ -133,13 +116,14 @@ class FusionEngine:
             total_words += sent_words
             if total_words >= word_budget:
                 break
-
         selected.sort(key=lambda x: x[0])
         ordered = [s for _, s in selected]
         merged = " ".join(ordered).strip()
         merged = self._final_cleanup(merged)
         return merged
-
+    
+    
+    
     def coherence_score(self, text: str) -> float:
 
         sents = self._split_sentences(text)

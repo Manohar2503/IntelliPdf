@@ -176,6 +176,25 @@ class DocumentSummarizer:
         if re.fullmatch(r"[\d\W_]+", l):
             return True
 
+        # metadata/header prefixes
+        if re.match(r"^\s*(subject|ref|reference|file|date|no)\s*[:\-]", l):
+            return True
+
+        # common document id/date patterns
+        if re.search(r"\b\d{1,4}[-/]\d{1,4}(?:[-/]\d{2,4})?(?:\([a-z0-9\-]+\))?\b", l):
+            if len(l.split()) <= 10:
+                return True
+        if re.search(r"\b(?:\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}[./-]\d{1,2}[./-]\d{1,2})\b", l):
+            if len(l.split()) <= 10:
+                return True
+
+        # lines dominated by digits/symbols
+        total = max(1, len(l))
+        digits = sum(ch.isdigit() for ch in l)
+        symbols = sum(not (ch.isalnum() or ch.isspace()) for ch in l)
+        if (digits + symbols) / total > 0.45:
+            return True
+
         # ✅ common PDF header/footer noise keywords (more specific patterns)
         # Only filter lines that are JUST these keywords, not content about them
         exact_noise_patterns = [
@@ -207,6 +226,48 @@ class DocumentSummarizer:
             return True
 
         return False
+
+    def _is_noisy_sentence(self, sentence: str) -> bool:
+        s = (sentence or "").strip()
+        if not s:
+            return True
+        if len(s.split()) < 6:
+            return True
+        if self._is_noise_line(s):
+            return True
+        if re.search(r"(.)\1{4,}", s):
+            return True
+        alpha_words = [w for w in re.findall(r"\b\w+\b", s) if re.search(r"[A-Za-z]", w)]
+        if alpha_words:
+            upper = sum(1 for w in alpha_words if len(w) >= 3 and w.isupper())
+            if upper / len(alpha_words) > 0.6:
+                return True
+        if re.search(r"[^\w\s.,;:!?()/%'\"-]{2,}", s):
+            return True
+        return False
+
+    def _clean_summary_text(self, text: str) -> str:
+        try:
+            sentences = sent_tokenize(text or "")
+        except Exception:
+            sentences = re.split(r"(?<=[.!?])\s+", text or "")
+
+        cleaned = []
+        seen = set()
+        for s in sentences:
+            s = re.sub(r"\s+", " ", s).strip()
+            if not s or self._is_noisy_sentence(s):
+                continue
+            if s[-1] not in ".!?":
+                s += "."
+            if s:
+                s = s[0].upper() + s[1:]
+            key = re.sub(r"\W+", " ", s.lower()).strip()
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            cleaned.append(s)
+        return " ".join(cleaned).strip()
     def _combine_text_and_ocr(self, sections, images=None):
         text_parts = []
         for sec in sections:
@@ -548,15 +609,19 @@ class DocumentSummarizer:
         if not self.hybrid_pipeline:
             raise RuntimeError("Hybrid pipeline not initialized")
         try:
-            print("\n🔥🔥 RUNNING HYBRID SEMANTIC PIPELINE 🔥🔥\n")
+            
             print(f"[DEBUG] Input text length: {len(full_text)} chars")
             extractive = " ".join(
             self._score_and_select_sentences(full_text, top_k=10)
         )
             result = self.hybrid_pipeline.run(full_text)
             final_summary = result.get("final_summary", "")
-            final_summary = extractive + " " + final_summary
+            extractive = self._clean_summary_text(extractive)
+            final_summary = self._clean_summary_text(final_summary)
+            final_summary = f"{extractive} {final_summary}".strip()
+            final_summary = self._clean_summary_text(final_summary)
             final_summary = self._expand_summary(final_summary, 260)
+            final_summary = self._clean_summary_text(final_summary)
             print(f"[DEBUG] Final summary length: {len(final_summary)} chars")
             return {
             "brief_summary": final_summary,

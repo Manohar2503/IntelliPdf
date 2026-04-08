@@ -5,10 +5,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 class EmbeddingGraph:
-    """Builds paragraph-level embeddings and cosine similarity graph.
-    Lightweight and CPU-friendly by defaulting to a compact SBERT model.
-    """
-
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         self.model_name = model_name
         self.model = SentenceTransformer(model_name)

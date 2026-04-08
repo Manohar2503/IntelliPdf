@@ -76,19 +76,13 @@ class AbstractiveSummarizer:
         return " ".join(out).strip()
 
     def summarize_chunk(self, text: str, use_pegasus: bool = False) -> Dict[str, str]:
-
         results = {}
-
         text = self._clean_text(text)
-
         if len(text.split()) < 45:
             results["distilbart"] = self._safe_fallback(text, max_words=90)
             return results
-
         max_len, min_len = self._get_lengths(text)
-
         model = self._get_distilbart()
-
         out = model(
             text,
             max_length=max_len,
@@ -100,18 +94,13 @@ class AbstractiveSummarizer:
             do_sample=False,
             truncation=True,
         )
-
         summary = out[0]["summary_text"].strip()
         summary = self._repair_summary(summary)
         if len(summary.split()) < 12:
             summary = self._safe_fallback(text, max_words=max_len)
-
         results["distilbart"] = summary
-
         if use_pegasus:
-
             model2 = self._get_pegasus()
-
             out2 = model2(
                 text,
                 max_length=max_len,
@@ -123,28 +112,21 @@ class AbstractiveSummarizer:
                 do_sample=False,
                 truncation=True,
             )
-
             summary2 = out2[0]["summary_text"].strip()
             summary2 = self._repair_summary(summary2)
             if len(summary2.split()) < 12:
                 summary2 = self._safe_fallback(text, max_words=max_len)
-
             results["pegasus"] = summary2
-
         return results
-
     def summarize_parallel(
         self,
         chunks: List[str],
         use_pegasus: bool = False,
         max_workers: int = 2
     ) -> List[Dict[str, str]]:
-
         if not chunks:
             return []
-
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-
             futures = [
                 executor.submit(
                     self.summarize_chunk,
@@ -153,5 +135,4 @@ class AbstractiveSummarizer:
                 )
                 for chunk in chunks
             ]
-
             return [f.result() for f in futures]

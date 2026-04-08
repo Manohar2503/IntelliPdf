@@ -61,23 +61,15 @@ class HybridSummarizationPipeline:
             use_pegasus=use_pegasus,
             max_workers=2,
         )
-
-        # 6) Fusion
         final = self.fuser.merge(
             candidates,
             extractive_summary=extractive_summary,
         )
-
         coherence = self.fuser.coherence_score(final)
-
-        # 7) Evaluation
         metrics = {}
-
         if reference:
             metrics["rouge"] = self.evaluator.rouge_scores(final, reference)
             metrics["semantic_similarity"] = self.evaluator.semantic_similarity(final, reference)
-
-        # 8) Structured output
         structured = self.output_gen.generate(final)
 
         return {

@@ -12,10 +12,10 @@ from src.singletons import embedder
 
 load_dotenv()
 
-# ✅ Enable hybrid pipeline for research-grade summarization
-doc_summarizer = DocumentSummarizer()
+#  Enable hybrid pipeline for research-grade summarization
+doc_summarizer = DocumentSummarizer(use_hybrid_pipeline=True)
 print(doc_summarizer.get_hybrid_pipeline_status())
-print("🔥 HYBRID PIPELINE READY 🔥")
+print(" HYBRID PIPELINE READY ")
 
 
 api_key = os.getenv("GEMINI_API_KEY")

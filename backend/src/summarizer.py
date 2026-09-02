@@ -21,8 +21,7 @@ from transformers import pipeline
 
 from src import images
 
-# Import the hybrid semantic pipeline. Try package path first (when running as 'src' package),
-# then fall back to local import if necessary. This ensures imports work with uvicorn from `backend/`.
+
 try:
     from src.semantic_pipeline.pipeline import HybridSummarizationPipeline
     HYBRID_PIPELINE_AVAILABLE = True
